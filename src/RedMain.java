@@ -6,6 +6,8 @@ public class RedMain {
 		redSearch.findRedPoints();
 		redSearch = new RedSearch("img2.png");
 		redSearch.findRedPoints();
+		redSearch = new RedSearch("target.png");
+		redSearch.boundCircleSearch();
 		
 
 	}

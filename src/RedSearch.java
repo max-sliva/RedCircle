@@ -13,8 +13,8 @@ public class RedSearch {
 		image = img;
 	}
 
-	public RedSearch(String path) {
-		this.path = path;
+	public RedSearch(String filePath) {
+		path = filePath;
 //		BufferedImage img = null;
 		File f = null;
 
@@ -26,10 +26,6 @@ public class RedSearch {
 		} catch (IOException e) {
 			System.out.println(e);
 		}
-
-		// get image width and height
-//		int width = image.getWidth();
-//		int height = image.getHeight();
 	}
 
 	public void findRedPoints() {
@@ -48,6 +44,22 @@ public class RedSearch {
 		        }
 			}
 		}
+	}
+	
+	public void boundCircleSearch() {
+		int width = image.getWidth();
+		int height = image.getHeight();
+		for (int j = 0; j < height; j++) {
+			int p = image.getRGB(width / 2, j);
+	        int r = (p >> 16) & 0xff; // get red
+	        int g = (p >> 8) & 0xff; // get green 
+	        int b = p & 0xff; // get blue 
+	        if (r < 2 && g < 2 && b < 2) {
+	        	System.out.println("black detected at y = "+j);
+	        	break;
+	        }
+		}
+		//TODO add finding lower bound of circle 
 	}
 
 }
