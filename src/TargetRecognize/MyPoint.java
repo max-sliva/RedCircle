@@ -1,3 +1,4 @@
+package TargetRecognize;
 
 public class MyPoint {
 	private int x;

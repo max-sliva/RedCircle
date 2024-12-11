@@ -1,4 +1,4 @@
-
+package TargetRecognize;
 public class Circle extends MyPoint{
 	private int radius;
 
