@@ -143,6 +143,8 @@ public class TargetMain {
 		upperBox.add(Box.createHorizontalGlue());
 		upperBox.add(delCircleBtn);
 
+		//TODO добавить боковую панель с настройкой фона в градации серого 
+		//TODO добавить генерацию нужного кол-ва мишеней с разными параметрами в отдельную папку
 		targetWindow.add(upperBox, BorderLayout.NORTH);
 		targetWindow.add(sizeSlider, BorderLayout.SOUTH);
 		targetWindow.add(thicknessSlider, BorderLayout.EAST);

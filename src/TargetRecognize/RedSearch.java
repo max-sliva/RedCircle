@@ -115,6 +115,11 @@ public class RedSearch {
 	public Circle getCircle(/*Point[] z*/) {
 		//https://shra.ru/2019/10/koordinaty-centra-okruzhnosti-po-trem-tochkam/ 
 		MyPoint[] z = boundCircleSearch();
+		System.out.println("boundCircleSearch returned "+z.length+" points");
+		if (z.length<3) {
+			System.out.println("--!! No circle !!--");
+			return null;
+		}
 		int a = z[1].getX() - z[0].getX();
 		int b = z[1].getY() - z[0].getY();
 		int c = z[2].getX() - z[0].getX();
@@ -138,7 +143,14 @@ public class RedSearch {
 	}
 
 	public Circle getCircle(MyPoint[] z) {
-		//https://shra.ru/2019/10/koordinaty-centra-okruzhnosti-po-trem-tochkam/ 
+		//https://shra.ru/2019/10/koordinaty-centra-okruzhnosti-po-trem-tochkam/
+		if (z==null || z.length<3) {
+			System.out.println("--!! No circle !!--");
+			return null;
+		}
+		for (int i = 0; i < z.length; i++) {
+			if (z[i] == null) return null;
+ 		}
 		int a = z[1].getX() - z[0].getX();
 		int b = z[1].getY() - z[0].getY();
 		int c = z[2].getX() - z[0].getX();
@@ -169,14 +181,19 @@ public class RedSearch {
 	public ArrayList<Circle> getCircles(Circle circle) {
 		ArrayList<Circle> circlesList = new ArrayList<Circle>();
 		MyPoint[] z = searchCircleFromCenter(circle, 0); //находим точки самого внутреннего круга
-		circlesList.add(getCircle(z)); //добавляем в список круг по найденным точкам
+		if (getCircle(z)!=null)
+			circlesList.add(getCircle(z)); //добавляем в список круг по найденным точкам
 		//цикл пока последний добавленный круг не приблизится к самому внешнему
-		while (circlesList.getLast().getRadius()+10 < circle.getRadius()) {
-			//ищем следующий внутренний круг за последним найденным до этого
-			z = searchCircleFromCenter(circle, circlesList.getLast().getRadius()+10);
-			circlesList.add(getCircle(z));
+		try {
+				while (circlesList.getLast().getRadius()+10 < circle.getRadius()) {
+					//ищем следующий внутренний круг за последним найденным до этого
+					z = searchCircleFromCenter(circle, circlesList.getLast().getRadius()+10);
+					circlesList.add(getCircle(z));
+				}
+				circlesList.removeLast(); //убираем последний круг, он обычно совпадает с самым внешним
+		} catch (java.util.NoSuchElementException err) {
+			System.out.println("--!! NoSuchElementException !!--");
 		}
-		circlesList.removeLast(); //убираем последний круг, он обычно совпадает с самым внешним
 		return circlesList;
 	}
 
