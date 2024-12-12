@@ -21,7 +21,9 @@ public class MyTargetLabel extends JLabel {
 	private boolean drawCircles = false;
 	ArrayList<Circle> circlesForTarget = new ArrayList<Circle>() ;
 	private boolean saveFile = false;
-
+	Color backColor = Color.white;	
+	Color circleColor = Color.BLACK;	
+	
 	public MyTargetLabel() {
 		super();
 	}
@@ -32,6 +34,15 @@ public class MyTargetLabel extends JLabel {
 		repaint();
 	}
 	
+	public void setBackColor(int grayValue) {
+		backColor = new Color(grayValue, grayValue, grayValue);
+//		backColor = 
+	}
+	
+	public void setCircleColor(int grayValue) {
+		circleColor	= new Color(grayValue, grayValue, grayValue);
+	}
+
 	
 	public void saveToFile() {
 //		drawCircles = false;
@@ -45,14 +56,14 @@ public class MyTargetLabel extends JLabel {
 		Graphics2D gr2D = (Graphics2D)g;
 		BasicStroke pen;
 //		gr2D.setColor(Color.WHITE);
-		gr2D.setBackground(Color.WHITE);
+		gr2D.setBackground(backColor);
 //		gr2D.drawRect(0, 0, this.getWidth(), this.getHeight());
 		gr2D.clearRect(0, 0, getSize().width, getSize().height);
 		if (drawCircles ) {
 			gr2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			pen = new BasicStroke(10);
 			gr2D.setStroke(pen);
-			gr2D.setColor(Color.BLACK);
+			gr2D.setColor(circleColor);
 			System.out.println("circles size = "+circlesForTarget.size());
 			for (Circle circle : circlesForTarget) {
 				int d = (int) (circle.getRadius()*2*dHeight);
@@ -78,5 +89,4 @@ public class MyTargetLabel extends JLabel {
 //		}
 		
 	}
-
 }

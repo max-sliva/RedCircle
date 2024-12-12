@@ -14,6 +14,7 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.rmi.server.Operation;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -24,10 +25,14 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.metal.MetalBorders.Flush3DBorder;
 
@@ -41,6 +46,13 @@ public class TargetMain {
 	static int betweenR = 40;
 
 	public static void main(String[] args) {
+		try {
+			UIManager.setLookAndFeel("com.formdev.flatlaf.FlatLightLaf");
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				createGui();
@@ -136,19 +148,53 @@ public class TargetMain {
 			}
 		});
 
-		Box upperBox = new Box(BoxLayout.X_AXIS);
-		upperBox.add(addCircleBtn);
-		upperBox.add(Box.createHorizontalGlue());
-		upperBox.add(saveImageBtn);
-		upperBox.add(Box.createHorizontalGlue());
-		upperBox.add(delCircleBtn);
-
-		//TODO добавить боковую панель с настройкой фона в градации серого 
+		var upperBox = new Box(BoxLayout.Y_AXIS);
+		upperBox.setBorder(BorderFactory.createLineBorder(Color.gray, 5));
+		Box upperBoxForCircles = new Box(BoxLayout.X_AXIS);
+		upperBoxForCircles.add(addCircleBtn);
+		upperBoxForCircles.add(Box.createHorizontalGlue());
+		upperBoxForCircles.add(saveImageBtn);
+		upperBoxForCircles.add(Box.createHorizontalGlue());
+		upperBoxForCircles.add(delCircleBtn);
+		upperBox.add(upperBoxForCircles);
+		
+		Box upperBoxForBackColor = createColorSettingsBox(targetLabel, "Back color in gray:", 255);
+		
+		upperBox.add(upperBoxForBackColor);
+		Box upperBoxForCircleColor = createColorSettingsBox(targetLabel, "Circle color in gray:", 0);
+		upperBox.add(upperBoxForCircleColor);
+		
 		//TODO добавить генерацию нужного кол-ва мишеней с разными параметрами в отдельную папку
+		
 		targetWindow.add(upperBox, BorderLayout.NORTH);
 		targetWindow.add(sizeSlider, BorderLayout.SOUTH);
 		targetWindow.add(thicknessSlider, BorderLayout.EAST);
 		targetWindow.validate();
+	}
+
+	private static Box createColorSettingsBox(MyTargetLabel targetLabel, String labelText, int curValue) {
+		Box upperBoxForBackColor = new Box(BoxLayout.X_AXIS);
+		upperBoxForBackColor.add(new JLabel(labelText));
+		JSlider graySlider = new JSlider(JSlider.HORIZONTAL, 0, 255, curValue);
+		graySlider.setPaintTrack(true);
+		graySlider.setPaintTicks(true);
+		graySlider.setPaintLabels(true);
+		graySlider.setMajorTickSpacing(50);
+		graySlider.setMinorTickSpacing(5);
+ 
+		JTextField grayValue = new JTextField("255");
+		graySlider.addChangeListener(e->{
+			System.out.println(labelText+" = "+graySlider.getValue());
+			if (labelText.contains("Back")) targetLabel.setBackColor(graySlider.getValue());
+			if (labelText.contains("Circle")) targetLabel.setCircleColor(graySlider.getValue());
+			grayValue.setText(String.valueOf(graySlider.getValue()));
+			targetLabel.repaint();
+			
+		});
+		upperBoxForBackColor.add(grayValue);
+		grayValue.setMaximumSize(new Dimension(20, 20));
+		upperBoxForBackColor.add(graySlider);
+		return upperBoxForBackColor;
 	}
 
 }
