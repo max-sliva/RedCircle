@@ -44,7 +44,10 @@ public class TargetMain {
 	static int x;
 	static int y;
 	static int betweenR = 40;
-
+	static ArrayList<Circle> circles = new ArrayList<Circle>();
+	static JSlider radiusSlider = new JSlider();
+	static JTextField radiusValue = new JTextField("");
+	
 	public static void main(String[] args) {
 		try {
 			UIManager.setLookAndFeel("com.formdev.flatlaf.FlatLightLaf");
@@ -77,7 +80,7 @@ public class TargetMain {
 
 		MyTargetLabel targetLabel = new MyTargetLabel();
 
-		ArrayList<Circle> circles = new ArrayList<Circle>();
+		
 		targetWindow.setSize(900, 700);
 		targetWindow.setLocationRelativeTo(null);
 		targetWindow.add(targetLabel, BorderLayout.CENTER);
@@ -86,7 +89,10 @@ public class TargetMain {
 		rMax = (targetLabel.getWidth() > targetLabel.getHeight()) ? targetLabel.getHeight() / 2
 				: targetLabel.getWidth() / 2;
 		System.out.println("rMax = " + rMax);
-		rCurrent = rMax - 40;
+		rCurrent = rMax - 20;
+		System.out.println("rCurrent = " + rCurrent);
+		radiusSlider.getModel().setMaximum(rCurrent);
+		radiusValue.setText(""+rCurrent);
 		x = targetLabel.getWidth() / 2;
 		y = targetLabel.getHeight() / 2;
 		circles.add(new Circle(x, y, rCurrent));
@@ -100,7 +106,10 @@ public class TargetMain {
 				rMax = (targetLabel.getWidth() > targetLabel.getHeight()) ? targetLabel.getHeight() / 2
 						: targetLabel.getWidth() / 2;
 				System.out.println("rMax = " + rMax);
-				rCurrent = rMax - 40;
+				rCurrent = rMax - 20;
+				radiusSlider.getModel().setMaximum(rCurrent);
+				System.out.println("rCurrent in resize = " + rCurrent);
+				radiusValue.setText(""+rCurrent);
 				x = targetLabel.getWidth() / 2;
 				y = targetLabel.getHeight() / 2;
 				circles.clear();
@@ -158,43 +167,55 @@ public class TargetMain {
 		upperBoxForCircles.add(delCircleBtn);
 		upperBox.add(upperBoxForCircles);
 		
-		Box upperBoxForBackColor = createColorSettingsBox(targetLabel, "Back color in gray:", 255);
+		Box upperBoxForBackColor = createSliderBox(targetLabel, "Back color in gray:", 0, 255, 255);
 		
 		upperBox.add(upperBoxForBackColor);
-		Box upperBoxForCircleColor = createColorSettingsBox(targetLabel, "Circle color in gray:", 0);
+		Box upperBoxForCircleColor = createSliderBox(targetLabel, "Circle color in gray:", 0, 255, 0);
 		upperBox.add(upperBoxForCircleColor);
 		
+		Box buttomBox = createSliderBox(targetLabel, "Radius:", 20, rCurrent, rCurrent);
+		
+		//TODO сделать добавление бокового слайдера через функцию 
 		//TODO добавить генерацию нужного кол-ва мишеней с разными параметрами в отдельную папку
 		
 		targetWindow.add(upperBox, BorderLayout.NORTH);
-		targetWindow.add(sizeSlider, BorderLayout.SOUTH);
+		targetWindow.add(buttomBox, BorderLayout.SOUTH);
 		targetWindow.add(thicknessSlider, BorderLayout.EAST);
 		targetWindow.validate();
 	}
 
-	private static Box createColorSettingsBox(MyTargetLabel targetLabel, String labelText, int curValue) {
-		Box upperBoxForBackColor = new Box(BoxLayout.X_AXIS);
-		upperBoxForBackColor.add(new JLabel(labelText));
-		JSlider graySlider = new JSlider(JSlider.HORIZONTAL, 0, 255, curValue);
-		graySlider.setPaintTrack(true);
-		graySlider.setPaintTicks(true);
-		graySlider.setPaintLabels(true);
-		graySlider.setMajorTickSpacing(50);
-		graySlider.setMinorTickSpacing(5);
+	private static Box createSliderBox(MyTargetLabel targetLabel, String labelText, int min, int max, int curValue) {
+		Box boxWithSlider = new Box(BoxLayout.X_AXIS);
+		boxWithSlider.add(new JLabel(labelText));
+		JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, curValue);
+		slider.setPaintTrack(true);
+		slider.setPaintTicks(true);
+		slider.setPaintLabels(true);
+		slider.setMajorTickSpacing(50);
+		slider.setMinorTickSpacing(5);
  
-		JTextField grayValue = new JTextField("255");
-		graySlider.addChangeListener(e->{
-			System.out.println(labelText+" = "+graySlider.getValue());
-			if (labelText.contains("Back")) targetLabel.setBackColor(graySlider.getValue());
-			if (labelText.contains("Circle")) targetLabel.setCircleColor(graySlider.getValue());
-			grayValue.setText(String.valueOf(graySlider.getValue()));
+		JTextField sliderValue = new JTextField(""+curValue);
+		slider.addChangeListener(e->{
+			System.out.println(labelText+" = "+slider.getValue());
+			if (labelText.contains("Back")) targetLabel.setBackColor(slider.getValue());
+			if (labelText.contains("Circle")) targetLabel.setCircleColor(slider.getValue());
+			if (labelText.contains("Radius")) {
+				radiusSlider = slider;
+				slider.getModel().setMaximum(rCurrent);
+				radiusValue = sliderValue;
+				radiusValue.setText(""+rCurrent);
+				circles.get(0).setRadius(slider.getValue());
+				targetLabel.drawTarget(circles);
+			}
+			
+			sliderValue.setText(String.valueOf(slider.getValue()));
 			targetLabel.repaint();
 			
 		});
-		upperBoxForBackColor.add(grayValue);
-		grayValue.setMaximumSize(new Dimension(20, 20));
-		upperBoxForBackColor.add(graySlider);
-		return upperBoxForBackColor;
+		boxWithSlider.add(sliderValue);
+		sliderValue.setMaximumSize(new Dimension(10, 20));
+		boxWithSlider.add(slider);
+		return boxWithSlider;
 	}
 
 }

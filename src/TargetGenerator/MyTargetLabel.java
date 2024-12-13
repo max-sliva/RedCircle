@@ -23,6 +23,7 @@ public class MyTargetLabel extends JLabel {
 	private boolean saveFile = false;
 	Color backColor = Color.white;	
 	Color circleColor = Color.BLACK;	
+	int circleRadius = 10;
 	
 	public MyTargetLabel() {
 		super();
@@ -43,6 +44,10 @@ public class MyTargetLabel extends JLabel {
 		circleColor	= new Color(grayValue, grayValue, grayValue);
 	}
 
+	public void setCircleRadius(int circleIndex , int value) {
+		circleRadius = value;
+		circlesForTarget.get(circleIndex).setRadius(circleIndex);
+	}
 	
 	public void saveToFile() {
 //		drawCircles = false;
