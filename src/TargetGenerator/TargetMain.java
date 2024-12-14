@@ -9,6 +9,8 @@ import java.awt.Graphics2D;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -119,8 +121,15 @@ public class TargetMain {
 			}
 		});
 
-		JSlider thicknessSlider = new JSlider(JSlider.VERTICAL, 5, 20, 5);
-		JSlider sizeSlider = new JSlider(10, rMax);
+		targetLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				super.mouseReleased(e);
+				System.out.println("---!! image clicked at x = "+e.getX()+" y="+e.getY()+ " !!---");
+				//TODO сделать определение, куда ткнули мышкой - какой круг
+			}
+		});
+		
 		JButton addCircleBtn = new JButton("circle +");
 		addCircleBtn.addActionListener(e -> {
 			circles.add(new Circle(x, y, circles.getLast().getRadius() - betweenR));
@@ -177,7 +186,6 @@ public class TargetMain {
 		Box buttomBox = createSliderBox(targetLabel, "Radius:", 20, rCurrent, rCurrent, JSlider.HORIZONTAL);
 		Box eastBox = createSliderBox(targetLabel, "Thick: ", 1, 100, 10, JSlider.VERTICAL);
 		
-		//TODO сделать добавление бокового слайдера через функцию 
 		//TODO добавить генерацию нужного кол-ва мишеней с разными параметрами в отдельную папку
 		
 		targetWindow.add(upperBox, BorderLayout.NORTH);
