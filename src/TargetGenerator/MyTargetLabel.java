@@ -24,6 +24,7 @@ public class MyTargetLabel extends JLabel {
 	Color backColor = Color.white;	
 	Color circleColor = Color.BLACK;	
 	int circleRadius = 10;
+	int thickness = 10;
 	
 	public MyTargetLabel() {
 		super();
@@ -42,6 +43,10 @@ public class MyTargetLabel extends JLabel {
 	
 	public void setCircleColor(int grayValue) {
 		circleColor	= new Color(grayValue, grayValue, grayValue);
+	}
+	
+	public void setThickness(int thick) {
+		thickness = thick;
 	}
 
 	public void setCircleRadius(int circleIndex , int value) {
@@ -66,7 +71,7 @@ public class MyTargetLabel extends JLabel {
 		gr2D.clearRect(0, 0, getSize().width, getSize().height);
 		if (drawCircles ) {
 			gr2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			pen = new BasicStroke(10);
+			pen = new BasicStroke(thickness);
 			gr2D.setStroke(pen);
 			gr2D.setColor(circleColor);
 			System.out.println("circles size = "+circlesForTarget.size());

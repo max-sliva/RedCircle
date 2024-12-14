@@ -46,7 +46,8 @@ public class TargetMain {
 	static int betweenR = 40;
 	static ArrayList<Circle> circles = new ArrayList<Circle>();
 	static JSlider radiusSlider = new JSlider();
-	static JTextField radiusValue = new JTextField("");
+//	static JTextField radiusValue = new JTextField("");
+	static JLabel radiusValue = new JLabel("");
 	
 	public static void main(String[] args) {
 		try {
@@ -167,34 +168,37 @@ public class TargetMain {
 		upperBoxForCircles.add(delCircleBtn);
 		upperBox.add(upperBoxForCircles);
 		
-		Box upperBoxForBackColor = createSliderBox(targetLabel, "Back color in gray:", 0, 255, 255);
+		Box upperBoxForBackColor = createSliderBox(targetLabel, "Back color in gray:", 0, 255, 255, JSlider.HORIZONTAL);
 		
 		upperBox.add(upperBoxForBackColor);
-		Box upperBoxForCircleColor = createSliderBox(targetLabel, "Circle color in gray:", 0, 255, 0);
+		Box upperBoxForCircleColor = createSliderBox(targetLabel, "Circle color in gray:", 0, 255, 0, JSlider.HORIZONTAL);
 		upperBox.add(upperBoxForCircleColor);
 		
-		Box buttomBox = createSliderBox(targetLabel, "Radius:", 20, rCurrent, rCurrent);
+		Box buttomBox = createSliderBox(targetLabel, "Radius:", 20, rCurrent, rCurrent, JSlider.HORIZONTAL);
+		Box eastBox = createSliderBox(targetLabel, "Thick: ", 1, 100, 10, JSlider.VERTICAL);
 		
 		//TODO сделать добавление бокового слайдера через функцию 
 		//TODO добавить генерацию нужного кол-ва мишеней с разными параметрами в отдельную папку
 		
 		targetWindow.add(upperBox, BorderLayout.NORTH);
 		targetWindow.add(buttomBox, BorderLayout.SOUTH);
-		targetWindow.add(thicknessSlider, BorderLayout.EAST);
+		targetWindow.add(eastBox, BorderLayout.EAST);
 		targetWindow.validate();
 	}
 
-	private static Box createSliderBox(MyTargetLabel targetLabel, String labelText, int min, int max, int curValue) {
-		Box boxWithSlider = new Box(BoxLayout.X_AXIS);
+	private static Box createSliderBox(MyTargetLabel targetLabel, String labelText, int min, int max, int curValue, int orientation) {
+		Box boxWithSlider = (orientation == JSlider.HORIZONTAL) ? new Box(BoxLayout.X_AXIS) : new Box(BoxLayout.Y_AXIS) ;
 		boxWithSlider.add(new JLabel(labelText));
-		JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, curValue);
+		JSlider slider = new JSlider(orientation, min, max, curValue);
 		slider.setPaintTrack(true);
 		slider.setPaintTicks(true);
 		slider.setPaintLabels(true);
 		slider.setMajorTickSpacing(50);
 		slider.setMinorTickSpacing(5);
  
-		JTextField sliderValue = new JTextField(""+curValue);
+//		JTextField sliderValue = new JTextField(""+curValue);
+		JLabel sliderValue = new JLabel(" "+curValue+" ");
+		sliderValue.setBorder(BorderFactory.createLineBorder(Color.gray, 2));
 		slider.addChangeListener(e->{
 			System.out.println(labelText+" = "+slider.getValue());
 			if (labelText.contains("Back")) targetLabel.setBackColor(slider.getValue());
@@ -207,13 +211,14 @@ public class TargetMain {
 				circles.get(0).setRadius(slider.getValue());
 				targetLabel.drawTarget(circles);
 			}
+			if (labelText.contains("Thick")) targetLabel.setThickness(slider.getValue());
 			
 			sliderValue.setText(String.valueOf(slider.getValue()));
 			targetLabel.repaint();
 			
 		});
 		boxWithSlider.add(sliderValue);
-		sliderValue.setMaximumSize(new Dimension(10, 20));
+	//	sliderValue.setMaximumSize(new Dimension(10, 20));
 		boxWithSlider.add(slider);
 		return boxWithSlider;
 	}
