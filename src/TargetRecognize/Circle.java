@@ -1,6 +1,7 @@
 package TargetRecognize;
 public class Circle extends MyPoint{
 	private int radius;
+	private int thickness = 10;
 
 	public Circle(int x, int y, int radius) {
 		super(x, y);
@@ -13,5 +14,13 @@ public class Circle extends MyPoint{
 
 	public void setRadius(int radius) {
 		this.radius = radius;
+	}
+
+	public int getThickness() {
+		return thickness;
+	}
+	
+	public void setThickness(int thick) {
+		thickness = thick;
 	}
 }

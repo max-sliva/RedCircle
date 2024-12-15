@@ -127,6 +127,8 @@ public class TargetMain {
 				super.mouseReleased(e);
 				System.out.println("---!! image clicked at x = "+e.getX()+" y="+e.getY()+ " !!---");
 				//TODO сделать определение, куда ткнули мышкой - какой круг
+				int circleIndex = getCircleIndexByXY(e.getX(), e.getY(), circles);
+				System.out.println("circle index = "+circleIndex);
 			}
 		});
 		
@@ -192,6 +194,27 @@ public class TargetMain {
 		targetWindow.add(buttomBox, BorderLayout.SOUTH);
 		targetWindow.add(eastBox, BorderLayout.EAST);
 		targetWindow.validate();
+	}
+
+	protected static int getCircleIndexByXY(int x, int y, ArrayList<Circle> circles2) {
+		int i = 0;
+		for (Circle circle : circles2) {
+			System.out.println(""+i+" circle: x="+circle.getX()+", y="+circle.getY()+", rad = "+circle.getRadius());
+			System.out.println("centerY-radius = "+(circle.getY()-circle.getRadius()));
+			if (circleIsOnXY(circle, x, y)) return i;
+			i++;
+		}
+		return -1;
+	}
+
+	private static boolean circleIsOnXY(Circle circle, int x, int y) {
+//		(x – a)2 + (y – b)2 = R2
+		int circleR = circle.getRadius();
+		int thick = circle.getThickness();
+		double leftPart = Math.pow(x-circle.getX(), 2) + Math.pow(y-circle.getY(), 2);
+		if (leftPart>=((circleR-thick)*(circleR-thick)) && leftPart<=((circleR+thick)*(circleR+thick)))
+				return true;
+		return false;
 	}
 
 	private static Box createSliderBox(MyTargetLabel targetLabel, String labelText, int min, int max, int curValue, int orientation) {
