@@ -80,7 +80,10 @@ public class MyTargetLabel extends JLabel {
 				int R = (int) (circle.getRadius()*dHeight);
 				int X = (int) (circle.getX()*dHeight);
 				int Y = (int) (circle.getY()*dHeight);
+				if (circle.getIsClicked()) gr2D.setColor(Color.yellow);
+				else gr2D.setColor(circleColor);
 				gr2D.drawOval(X-R, Y-R, d, d);
+				
 			}
 		}
 //		if (saveFile ) {

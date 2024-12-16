@@ -128,6 +128,13 @@ public class TargetMain {
 				System.out.println("---!! image clicked at x = "+e.getX()+" y="+e.getY()+ " !!---");
 				//TODO сделать определение, куда ткнули мышкой - какой круг
 				int circleIndex = getCircleIndexByXY(e.getX(), e.getY(), circles);
+				if (circleIndex>=0) {
+					circles.get(circleIndex).setIsClicked(true);
+					circles.forEach(circle->{
+						if (circle!=circles.get(circleIndex)) circle.setIsClicked(false);
+					});
+				} else circles.forEach(circle-> circle.setIsClicked(false));
+				targetLabel.drawTarget(circles);
 				System.out.println("circle index = "+circleIndex);
 			}
 		});
