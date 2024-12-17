@@ -126,15 +126,15 @@ public class TargetMain {
 			public void mouseReleased(MouseEvent e) {
 				super.mouseReleased(e);
 				System.out.println("---!! image clicked at x = "+e.getX()+" y="+e.getY()+ " !!---");
-				//TODO сделать определение, куда ткнули мышкой - какой круг
 				int circleIndex = getCircleIndexByXY(e.getX(), e.getY(), circles);
 				if (circleIndex>=0) {
 					circles.get(circleIndex).setIsClicked(true);
 					circles.forEach(circle->{
 						if (circle!=circles.get(circleIndex)) circle.setIsClicked(false);
 					});
-				} else circles.forEach(circle-> circle.setIsClicked(false));
+				} else circles.forEach(circle -> circle.setIsClicked(false));
 				targetLabel.drawTarget(circles);
+//TODO сделать изменение размера и толщины только у выбранного круга 
 				System.out.println("circle index = "+circleIndex);
 			}
 		});
