@@ -8,6 +8,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -19,12 +20,14 @@ import javax.swing.JLabel;
 public class MyTargetLabel extends JLabel {
 	float dHeight = 1;
 	private boolean drawCircles = false;
+	private boolean drawDot = false;
 	ArrayList<Circle> circlesForTarget = new ArrayList<Circle>() ;
 	private boolean saveFile = false;
 	Color backColor = Color.white;	
 	Color circleColor = Color.BLACK;	
 	int circleRadius = 10;
 	int thickness = 10;
+	private MyPoint redPoint;
 	
 	public MyTargetLabel() {
 		super();
@@ -33,6 +36,12 @@ public class MyTargetLabel extends JLabel {
 	public void drawTarget(ArrayList<Circle> circles) {
 		this.circlesForTarget = circles;
 		drawCircles = true;
+		repaint();
+	}
+	
+	public void drawRedDot(int x, int y) {
+		drawDot = true;
+		redPoint = new MyPoint(x, y);
 		repaint();
 	}
 	
@@ -69,8 +78,8 @@ public class MyTargetLabel extends JLabel {
 		gr2D.setBackground(backColor);
 //		gr2D.drawRect(0, 0, this.getWidth(), this.getHeight());
 		gr2D.clearRect(0, 0, getSize().width, getSize().height);
+		gr2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		if (drawCircles ) {
-			gr2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			pen = new BasicStroke(thickness);
 			gr2D.setStroke(pen);
 			gr2D.setColor(circleColor);
@@ -83,9 +92,14 @@ public class MyTargetLabel extends JLabel {
 				int Y = (int) (circle.getY()*dHeight);
 				if (circle.getIsClicked()) gr2D.setColor(Color.yellow);
 				else gr2D.setColor(circleColor);
-				gr2D.drawOval(X-R, Y-R, d, d);
-				
+				gr2D.drawOval(X-R, Y-R, d, d);				
 			}
+		}
+		if (drawDot) {
+			pen = new BasicStroke(2);
+			gr2D.setStroke(pen);
+			gr2D.setColor(Color.red);
+			gr2D.fillOval(redPoint.getX()-3, redPoint.getY()-3, 6, 6);
 		}
 //		if (saveFile ) {
 //			System.out.println("in paint saving size = "+getWidth()+" x "+ getHeight());
@@ -101,6 +115,5 @@ public class MyTargetLabel extends JLabel {
 //			}
 //	        saveFile = false;
 //		}
-		
 	}
 }

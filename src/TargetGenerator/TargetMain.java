@@ -25,6 +25,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -51,13 +52,13 @@ public class TargetMain {
 //	static JTextField radiusValue = new JTextField("");
 	static JLabel radiusValue = new JLabel("");
 	static int circleSelectedIndex = -1;
+	static JCheckBox rebDotChBox = new JCheckBox("Red dot");
 	
 	public static void main(String[] args) {
 		try {
 			UIManager.setLookAndFeel("com.formdev.flatlaf.FlatLightLaf");
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		SwingUtilities.invokeLater(new Runnable() {
@@ -127,16 +128,21 @@ public class TargetMain {
 			public void mouseReleased(MouseEvent e) {
 				super.mouseReleased(e);
 				System.out.println("---!! image clicked at x = "+e.getX()+" y="+e.getY()+ " !!---");
-				circleSelectedIndex = getCircleIndexByXY(e.getX(), e.getY(), circles);
-				if (circleSelectedIndex>=0) {
-					circles.get(circleSelectedIndex).setIsClicked(true);
-					circles.forEach(circle->{
-						if (circle!=circles.get(circleSelectedIndex)) circle.setIsClicked(false);
-					});
-					radiusSlider.setValue(circles.get(circleSelectedIndex).getRadius());
-				} else circles.forEach(circle -> circle.setIsClicked(false));
-				targetLabel.drawTarget(circles);
-				System.out.println("circle index = "+circleSelectedIndex);
+				if (!rebDotChBox.isSelected()) {	
+					circleSelectedIndex = getCircleIndexByXY(e.getX(), e.getY(), circles);
+					if (circleSelectedIndex>=0) {
+						circles.get(circleSelectedIndex).setIsClicked(true);
+						circles.forEach(circle->{
+							if (circle!=circles.get(circleSelectedIndex)) circle.setIsClicked(false);
+						});
+						radiusSlider.setValue(circles.get(circleSelectedIndex).getRadius());
+					} else circles.forEach(circle -> circle.setIsClicked(false));
+					targetLabel.drawTarget(circles);
+					System.out.println("circle index = "+circleSelectedIndex);
+				} else {
+					System.out.println("---!! red dot mode !!----");
+					targetLabel.drawRedDot(e.getX(), e.getY());
+				}
 			}
 		});
 		
@@ -185,7 +191,9 @@ public class TargetMain {
 		upperBoxForCircles.add(saveImageBtn);
 		upperBoxForCircles.add(Box.createHorizontalGlue());
 		upperBoxForCircles.add(delCircleBtn);
-		//TODO добавить чекбокс для красной точки
+		upperBoxForCircles.add(Box.createHorizontalGlue());
+		upperBoxForCircles.add(rebDotChBox);
+		
 		upperBox.add(upperBoxForCircles);
 		
 		Box upperBoxForBackColor = createSliderBox(targetLabel, "Back color in gray:", 0, 255, 255, JSlider.HORIZONTAL);
