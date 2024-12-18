@@ -50,6 +50,7 @@ public class TargetMain {
 	static JSlider radiusSlider = new JSlider();
 //	static JTextField radiusValue = new JTextField("");
 	static JLabel radiusValue = new JLabel("");
+	static int circleSelectedIndex = -1;
 	
 	public static void main(String[] args) {
 		try {
@@ -126,16 +127,16 @@ public class TargetMain {
 			public void mouseReleased(MouseEvent e) {
 				super.mouseReleased(e);
 				System.out.println("---!! image clicked at x = "+e.getX()+" y="+e.getY()+ " !!---");
-				int circleIndex = getCircleIndexByXY(e.getX(), e.getY(), circles);
-				if (circleIndex>=0) {
-					circles.get(circleIndex).setIsClicked(true);
+				circleSelectedIndex = getCircleIndexByXY(e.getX(), e.getY(), circles);
+				if (circleSelectedIndex>=0) {
+					circles.get(circleSelectedIndex).setIsClicked(true);
 					circles.forEach(circle->{
-						if (circle!=circles.get(circleIndex)) circle.setIsClicked(false);
+						if (circle!=circles.get(circleSelectedIndex)) circle.setIsClicked(false);
 					});
+					radiusSlider.setValue(circles.get(circleSelectedIndex).getRadius());
 				} else circles.forEach(circle -> circle.setIsClicked(false));
 				targetLabel.drawTarget(circles);
-//TODO сделать изменение размера и толщины только у выбранного круга 
-				System.out.println("circle index = "+circleIndex);
+				System.out.println("circle index = "+circleSelectedIndex);
 			}
 		});
 		
@@ -184,6 +185,7 @@ public class TargetMain {
 		upperBoxForCircles.add(saveImageBtn);
 		upperBoxForCircles.add(Box.createHorizontalGlue());
 		upperBoxForCircles.add(delCircleBtn);
+		//TODO добавить чекбокс для красной точки
 		upperBox.add(upperBoxForCircles);
 		
 		Box upperBoxForBackColor = createSliderBox(targetLabel, "Back color in gray:", 0, 255, 255, JSlider.HORIZONTAL);
@@ -233,23 +235,32 @@ public class TargetMain {
 		slider.setPaintLabels(true);
 		slider.setMajorTickSpacing(50);
 		slider.setMinorTickSpacing(5);
- 
-//		JTextField sliderValue = new JTextField(""+curValue);
 		JLabel sliderValue = new JLabel(" "+curValue+" ");
+		if (labelText.contains("Radius")) {
+			radiusSlider = slider;
+			slider.getModel().setMaximum(rCurrent);
+			radiusValue = sliderValue;
+		}
+//		JTextField sliderValue = new JTextField(""+curValue);
 		sliderValue.setBorder(BorderFactory.createLineBorder(Color.gray, 2));
 		slider.addChangeListener(e->{
 			System.out.println(labelText+" = "+slider.getValue());
 			if (labelText.contains("Back")) targetLabel.setBackColor(slider.getValue());
 			if (labelText.contains("Circle")) targetLabel.setCircleColor(slider.getValue());
 			if (labelText.contains("Radius")) {
-				radiusSlider = slider;
-				slider.getModel().setMaximum(rCurrent);
-				radiusValue = sliderValue;
-				radiusValue.setText(""+rCurrent);
-				circles.get(0).setRadius(slider.getValue());
-				targetLabel.drawTarget(circles);
+				if (circleSelectedIndex<0) {
+//					radiusSlider = slider;
+//					slider.getModel().setMaximum(rCurrent);
+//					radiusValue = sliderValue;
+					radiusValue.setText(""+rCurrent);
+					circles.get(0).setRadius(slider.getValue());
+					targetLabel.drawTarget(circles);
+				} else circles.get(circleSelectedIndex).setRadius(slider.getValue());
 			}
-			if (labelText.contains("Thick")) targetLabel.setThickness(slider.getValue());
+			if (labelText.contains("Thick")) {
+				if (circleSelectedIndex<0) targetLabel.setThickness(slider.getValue());
+				else circles.get(circleSelectedIndex).setThickness(slider.getValue());
+			}
 			
 			sliderValue.setText(String.valueOf(slider.getValue()));
 			targetLabel.repaint();

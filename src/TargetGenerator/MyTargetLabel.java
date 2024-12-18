@@ -76,6 +76,7 @@ public class MyTargetLabel extends JLabel {
 			gr2D.setColor(circleColor);
 			System.out.println("circles size = "+circlesForTarget.size());
 			for (Circle circle : circlesForTarget) {
+				gr2D.setStroke(new BasicStroke(circle.getThickness()));
 				int d = (int) (circle.getRadius()*2*dHeight);
 				int R = (int) (circle.getRadius()*dHeight);
 				int X = (int) (circle.getX()*dHeight);
