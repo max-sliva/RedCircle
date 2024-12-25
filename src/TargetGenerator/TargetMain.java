@@ -29,6 +29,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
@@ -82,9 +85,8 @@ public class TargetMain {
 	private static void createGui() {
 		JFrame targetWindow = new JFrame("Target creation");
 		targetWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		
 		MyTargetLabel targetLabel = new MyTargetLabel();
-
 		
 		targetWindow.setSize(900, 700);
 		targetWindow.setLocationRelativeTo(null);
@@ -206,6 +208,15 @@ public class TargetMain {
 		Box eastBox = createSliderBox(targetLabel, "Thick: ", 1, 100, 10, JSlider.VERTICAL);
 		
 		//TODO добавить генерацию нужного кол-ва мишеней с разными параметрами в отдельную папку
+		JMenuBar menuBar = new JMenuBar();
+		targetWindow.setJMenuBar(menuBar);
+		JMenu menuMain = new JMenu("Data");
+		JMenuItem generateData = new JMenuItem("generateData");
+		menuBar.add(menuMain);
+		menuMain.add(generateData);
+		generateData.addActionListener(e->{
+			System.out.println("data generation");
+		});
 		
 		targetWindow.add(upperBox, BorderLayout.NORTH);
 		targetWindow.add(buttomBox, BorderLayout.SOUTH);
