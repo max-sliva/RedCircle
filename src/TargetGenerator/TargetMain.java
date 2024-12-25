@@ -211,17 +211,44 @@ public class TargetMain {
 		JMenuBar menuBar = new JMenuBar();
 		targetWindow.setJMenuBar(menuBar);
 		JMenu menuMain = new JMenu("Data");
-		JMenuItem generateData = new JMenuItem("generateData");
+		JMenuItem genDataMenuItem = new JMenuItem("generateData");
 		menuBar.add(menuMain);
-		menuMain.add(generateData);
-		generateData.addActionListener(e->{
+		menuMain.add(genDataMenuItem);
+		genDataMenuItem.addActionListener(e->{
 			System.out.println("data generation");
+			generateTargetImages(10);
 		});
 		
 		targetWindow.add(upperBox, BorderLayout.NORTH);
 		targetWindow.add(buttomBox, BorderLayout.SOUTH);
 		targetWindow.add(eastBox, BorderLayout.EAST);
 		targetWindow.validate();
+	}
+
+	private static void generateTargetImages(int n) {
+		int width = 200;
+        int height = 100;
+        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        // Now bufferedImage can be used as needed (e.g., saving to a file)
+		for (int i = 0; i < n; i++) {
+	        // Get the graphics context
+	        Graphics2D g2d = bufferedImage.createGraphics();
+	        // Draw something on the image
+	        g2d.setColor(Color.BLUE);
+	        g2d.fillRect(0, 0, width, height);
+	        g2d.setColor(Color.WHITE);
+	        g2d.drawString("Hello, World!", 50+i, 50+i);
+
+	        // Dispose of the graphics context
+	        g2d.dispose();
+	        File outputfile = new File("out"+i+".png");
+			try {
+				ImageIO.write(bufferedImage, "png", outputfile);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
 	}
 
 	protected static int getCircleIndexByXY(int x, int y, ArrayList<Circle> circles2) {
