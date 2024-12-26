@@ -234,6 +234,9 @@ public class TargetMain {
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         int radius = (width > height)? (height - 40) / 2 : (width - 40) / 2;  
 		BasicStroke pen;
+		//TODO добавить зависимость кол-ва файлов от толщины линии и расстояния между кругами
+		//и сделать диалоговое окно с настройками, которые будут показывать, сколько мишеней получится
+		//при указанных диапазонах параметров
 		for (int i = 0; i < n; i++) {
 	        // Get the graphics context
 	        Graphics2D g2d = bufferedImage.createGraphics();
