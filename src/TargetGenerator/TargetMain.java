@@ -1,11 +1,13 @@
 package TargetGenerator;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -216,7 +218,7 @@ public class TargetMain {
 		menuMain.add(genDataMenuItem);
 		genDataMenuItem.addActionListener(e->{
 			System.out.println("data generation");
-			generateTargetImages(10);
+			generateTargetImages(5, 1400, 1000);
 		});
 		
 		targetWindow.add(upperBox, BorderLayout.NORTH);
@@ -225,21 +227,30 @@ public class TargetMain {
 		targetWindow.validate();
 	}
 
-	private static void generateTargetImages(int n) {
-		int width = 200;
-        int height = 100;
+	private static void generateTargetImages(int n, int w, int h) {
+		int width = w;
+        int height = h;
+        int between = 40;
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
-        // Now bufferedImage can be used as needed (e.g., saving to a file)
+        int radius = (width > height)? (height - 40) / 2 : (width - 40) / 2;  
+		BasicStroke pen;
 		for (int i = 0; i < n; i++) {
 	        // Get the graphics context
 	        Graphics2D g2d = bufferedImage.createGraphics();
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	        // Draw something on the image
-	        g2d.setColor(Color.BLUE);
-	        g2d.fillRect(0, 0, width, height);
+	        pen = new BasicStroke(5);
+			g2d.setStroke(pen);
 	        g2d.setColor(Color.WHITE);
-	        g2d.drawString("Hello, World!", 50+i, 50+i);
-
+	        g2d.fillRect(0, 0, width, height);
+	        g2d.setColor(Color.BLACK);
+	        for (int j = 0; j<=i; j++) {
+	        	int r = radius - between*j;
+				int d = r*2;
+				int X = width / 2;
+				int Y = height / 2;
+				g2d.drawOval(X-r, Y-r, d, d);				
+	        }
 	        // Dispose of the graphics context
 	        g2d.dispose();
 	        File outputfile = new File("out"+i+".png");

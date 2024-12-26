@@ -6,6 +6,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Eclipse2024/RedCircle/flatlaf-3.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Eclipse2023_projects/RedCircle2/flatlaf-3.4.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
