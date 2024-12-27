@@ -209,7 +209,6 @@ public class TargetMain {
 		Box buttomBox = createSliderBox(targetLabel, "Radius:", 20, rCurrent, rCurrent, JSlider.HORIZONTAL);
 		Box eastBox = createSliderBox(targetLabel, "Thick: ", 1, 100, 10, JSlider.VERTICAL);
 		
-		//TODO добавить генерацию нужного кол-ва мишеней с разными параметрами в отдельную папку
 		JMenuBar menuBar = new JMenuBar();
 		targetWindow.setJMenuBar(menuBar);
 		JMenu menuMain = new JMenu("Data");
@@ -218,51 +217,16 @@ public class TargetMain {
 		menuMain.add(genDataMenuItem);
 		genDataMenuItem.addActionListener(e->{
 			System.out.println("data generation");
-			generateTargetImages(5, 1400, 1000);
+			GenerationOptions generationFrame = new GenerationOptions("Generation options");
+			generationFrame.setSize(800, 600);
+			generationFrame.setLocationRelativeTo(targetWindow);
+			generationFrame.setVisible(true);
 		});
 		
 		targetWindow.add(upperBox, BorderLayout.NORTH);
 		targetWindow.add(buttomBox, BorderLayout.SOUTH);
 		targetWindow.add(eastBox, BorderLayout.EAST);
 		targetWindow.validate();
-	}
-
-	private static void generateTargetImages(int n, int w, int h) {
-		int width = w;
-        int height = h;
-        int between = 40;
-        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        int radius = (width > height)? (height - 40) / 2 : (width - 40) / 2;  
-		BasicStroke pen;
-		//TODO добавить зависимость кол-ва файлов от толщины линии и расстояния между кругами
-		//и сделать диалоговое окно с настройками, которые будут показывать, сколько мишеней получится
-		//при указанных диапазонах параметров
-		for (int i = 0; i < n; i++) {
-	        // Get the graphics context
-	        Graphics2D g2d = bufferedImage.createGraphics();
-			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	        // Draw something on the image
-	        pen = new BasicStroke(5);
-			g2d.setStroke(pen);
-	        g2d.setColor(Color.WHITE);
-	        g2d.fillRect(0, 0, width, height);
-	        g2d.setColor(Color.BLACK);
-	        for (int j = 0; j<=i; j++) {
-	        	int r = radius - between*j;
-				int d = r*2;
-				int X = width / 2;
-				int Y = height / 2;
-				g2d.drawOval(X-r, Y-r, d, d);				
-	        }
-	        // Dispose of the graphics context
-	        g2d.dispose();
-	        File outputfile = new File("out"+i+".png");
-			try {
-				ImageIO.write(bufferedImage, "png", outputfile);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		}
 	}
 
 	protected static int getCircleIndexByXY(int x, int y, ArrayList<Circle> circles2) {
