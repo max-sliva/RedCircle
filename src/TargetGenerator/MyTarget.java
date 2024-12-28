@@ -16,8 +16,9 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-public class MyTargetLabel extends JLabel {
+public class MyTarget extends JPanel {
 	float dHeight = 1;
 	private boolean drawCircles = false;
 	private boolean drawDot = false;
@@ -28,9 +29,17 @@ public class MyTargetLabel extends JLabel {
 	int circleRadius = 10;
 	int thickness = 10;
 	private MyPoint redPoint;
+	private int curWidth = 0;
+	private int curHeight = 0;
+	private String targetName = "";
 	
-	public MyTargetLabel() {
+	public MyTarget() {
 		super();
+	}
+	
+	public MyTarget(String name) {
+		super();
+		targetName = name;
 	}
 
 	public void drawTarget(ArrayList<Circle> circles) {
@@ -69,6 +78,14 @@ public class MyTargetLabel extends JLabel {
 		repaint();
 	}
 	
+	public int getCurrentWidth() {
+		return curWidth;
+	}
+
+	public int getCurrentHeight() {
+		return curHeight;
+	}
+	
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
@@ -77,6 +94,9 @@ public class MyTargetLabel extends JLabel {
 //		gr2D.setColor(Color.WHITE);
 		gr2D.setBackground(backColor);
 //		gr2D.drawRect(0, 0, this.getWidth(), this.getHeight());
+		curWidth = getSize().width;
+		curHeight = getSize().height;
+		System.out.println(targetName+" size = " + getCurrentWidth() +" x "+ getCurrentHeight() +" ");
 		gr2D.clearRect(0, 0, getSize().width, getSize().height);
 		gr2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		if (drawCircles ) {
@@ -90,6 +110,7 @@ public class MyTargetLabel extends JLabel {
 				int R = (int) (circle.getRadius()*dHeight);
 				int X = (int) (circle.getX()*dHeight);
 				int Y = (int) (circle.getY()*dHeight);
+				System.out.println("x = " + X + " y = " + Y + " r = " + R);
 				if (circle.getIsClicked()) gr2D.setColor(Color.yellow);
 				else gr2D.setColor(circleColor);
 				gr2D.drawOval(X-R, Y-R, d, d);				

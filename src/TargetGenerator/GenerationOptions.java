@@ -8,33 +8,154 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import TargetRecognize.Circle;
 
 public class GenerationOptions extends JFrame{
 
 	private static final long serialVersionUID = 1L;
-
+	MyTarget target1;
+	MyTarget target2;
+	ArrayList<Circle> circlesFrom = new ArrayList<Circle>();
+	ArrayList<Circle> circlesTo = new ArrayList<Circle>();
+	Box centralBox = new Box(BoxLayout.Y_AXIS);
+	Box imagesPreviewBox = new Box(BoxLayout.X_AXIS);
+	MyTarget imageFrom = new MyTarget("from");
+	MyTarget imageTo = new MyTarget("to");
+	
 	public GenerationOptions(String title) {
 		super(title);
+		Box circlesCountBox = create2ValueSliderBox("Circles number: ", 1, 10, 1, 2);
+		Box circlesThickBox = create2ValueSliderBox("Circles thickness: ", 1, 70, 3, 20);
+		Box circlesSpaceBox = create2ValueSliderBox("Circles between: ", 10, 100, 20, 60);
+
 		JButton genBtn = new JButton("Generate targets");
 		genBtn.addActionListener(e->{
 			generateTargetImages(5, 1400, 1000);
 		});
-		Box centralBox = new Box(BoxLayout.Y_AXIS);
 		Box genBtnBox = new Box(BoxLayout.X_AXIS);
-		genBtnBox.add(genBtn);
+		JCheckBox showImages = new JCheckBox("Show preview");
+		showImages.addActionListener(e->{
+			if (showImages.isSelected()) {
+				imagesPreviewBox.setVisible(true);
+				imagesPreviewBox.setVisible(false);
+				imagesPreviewBox.setVisible(true);
+				imageFrom.repaint();
+				System.out.println("imageFrom width = "+imageFrom.getCurrentWidth());
+				imageFrom.drawTarget(circlesFrom);
+				if (circlesFrom.getFirst().getRadius()==0) {
+					circlesFrom.clear();
+					int w = imageFrom.getCurrentWidth();
+					int h = imageFrom.getCurrentHeight();
+					int radius = (w < h) ? w / 2 : h / 2 ;
+					circlesFrom.add(new Circle(w/2, h/2, radius));
+					imageFrom.drawTarget(circlesFrom);
+					w = imageTo.getCurrentWidth();
+					h = imageTo.getCurrentHeight();
+					radius = (w < h) ? w / 2 : h / 2 ;
+					circlesTo.add(new Circle(w/2, h/2, radius));
+					imageTo.drawTarget(circlesTo);
+				}
+			}
+			else imagesPreviewBox.setVisible(false);
+		});
+		genBtnBox.add(showImages);
 		genBtnBox.add(Box.createHorizontalGlue());
-		centralBox.add(genBtnBox);
-		add(centralBox, BorderLayout.CENTER);
+		genBtnBox.add(genBtn);
+		Box northBox = new Box(BoxLayout.Y_AXIS);
+		northBox.add(circlesCountBox);
+		northBox.add(circlesThickBox);
+		northBox.add(circlesSpaceBox);
+		northBox.add(genBtnBox);
+		
+//		Box imagesPreviewBox = new Box(BoxLayout.X_AXIS);
+//		MyTargetLabel imageFrom = new MyTargetLabel();
+		add(northBox, BorderLayout.NORTH);
+		add(imagesPreviewBox, BorderLayout.CENTER);
+		imagesPreviewBox.setVisible(false);
+//		MyTarget imageFrom = new MyTarget("from");
+//		MyTarget imageTo = new MyTarget("to");
+		imagesPreviewBox.add(imageFrom);
+		imagesPreviewBox.add(new JLabel("-->"));
+		imagesPreviewBox.add(imageTo);
+		imagesPreviewBox.setBorder(BorderFactory.createLineBorder(Color.blue, 3));
+		System.out.println("gen window is shown");
+////		System.out.println("imagesPreviewBox width = " + imagesPreviewBox.getWidth());
+//		invalidate();
+//		imageFrom.repaint();
+//		imageTo.repaint();
+//		System.out.println("imageFrom width = " + imageFrom.getCurrentWidth());
+		
+//		add(imageTo, BorderLayout.CENTER);
 		//TODO добавить генерацию нужного кол-ва мишеней с разными параметрами в отдельную папку
+		showImages.setSelected(true);
+		showImages.setSelected(false);
+		int w = imageFrom.getCurrentWidth();
+		int h = imageFrom.getCurrentHeight();
+		int radius = (w < h) ? w / 2 : h / 2 ;
+		circlesFrom.add(new Circle(w/2, h/2, radius));
+		imageFrom.drawTarget(circlesFrom);
+		w = imageTo.getCurrentWidth();
+		h = imageTo.getCurrentHeight();
+		radius = (w < h) ? w / 2 : h / 2 ;
+		circlesTo.add(new Circle(w/2, h/2, radius));
+		imageTo.drawTarget(circlesTo);
+	}
+	
+	public void showPreviewBox() {
+//		MyTarget imageFrom = new MyTarget("from");
+//		MyTarget imageTo = new MyTarget("to");
+//		imagesPreviewBox.add(imageFrom);
+//		imagesPreviewBox.add(new JLabel("-->"));
+//		imagesPreviewBox.add(imageTo);
+//		imagesPreviewBox.setBorder(BorderFactory.createLineBorder(Color.blue, 3));
+////		System.out.println("imagesPreviewBox width = " + imagesPreviewBox.getWidth());
+//		invalidate();
+//		imageFrom.repaint();
+//		imageTo.repaint();
+		System.out.println("imageFrom width = " + imageFrom.getCurrentWidth());
 
 	}
 	
+	private Box create2ValueSliderBox(String labelText, int minValue, int maxValue, int val1, int val2) {
+		Box boxWith2Sliders = new Box(BoxLayout.X_AXIS);
+		JLabel sliderLabel = new JLabel(labelText);
+//		RangeSlider slider = new RangeSlider(minValue, maxValue, val1, val2);
+		RangeSliderOld slider = new RangeSliderOld(minValue, maxValue);
+		slider.setValue(val1);
+		slider.setUpperValue(val2);
+		slider.setPaintTrack(true);
+		slider.setPaintTicks(true);
+		slider.setPaintLabels(true);
+		slider.setMajorTickSpacing((maxValue - minValue) / 4 );
+		slider.setMinorTickSpacing((maxValue - minValue+1) / 10);
+		boxWith2Sliders.add(sliderLabel);
+		JLabel val1Label = new JLabel(" "+val1+" ");
+		val1Label.setBorder(BorderFactory.createLineBorder(Color.gray, 2));
+		JLabel val2Label = new JLabel(" "+val2+" ");
+		val2Label.setBorder(BorderFactory.createLineBorder(Color.gray, 2));
+		boxWith2Sliders.add(val1Label);
+		boxWith2Sliders.add(new JLabel("-"));
+		boxWith2Sliders.add(val2Label);
+		boxWith2Sliders.add(slider);
+		slider.addChangeListener(e->{
+			val1Label.setText(" "+slider.getValue()+" ");
+			val2Label.setText(" "+slider.getUpperValue()+" ");
+		});
+		return boxWith2Sliders;
+	}
+
 	private void generateTargetImages(int n, int w, int h) {
 		int width = w;
         int height = h;

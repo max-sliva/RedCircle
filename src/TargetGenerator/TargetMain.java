@@ -1,31 +1,22 @@
 package TargetGenerator;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.rmi.server.Operation;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -34,15 +25,12 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.plaf.metal.MetalBorders.Flush3DBorder;
+//import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 
 import TargetRecognize.Circle;
 
@@ -60,8 +48,14 @@ public class TargetMain {
 	static JCheckBox rebDotChBox = new JCheckBox("Red dot");
 	
 	public static void main(String[] args) {
+//		LookAndFeelFactory.installJideExtension(LookAndFeelFactory.EXTENSION_STYLE_VSNET);
 		try {
 			UIManager.setLookAndFeel("com.formdev.flatlaf.FlatLightLaf");
+//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+//			UIManager.setLookAndFeel(UIManager.createLookAndFeel("Windows"));
+//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+//		} catch (UnsupportedLookAndFeelException e) {
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
@@ -88,7 +82,7 @@ public class TargetMain {
 		JFrame targetWindow = new JFrame("Target creation");
 		targetWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		MyTargetLabel targetLabel = new MyTargetLabel();
+		MyTarget targetLabel = new MyTarget();
 		
 		targetWindow.setSize(900, 700);
 		targetWindow.setLocationRelativeTo(null);
@@ -215,12 +209,16 @@ public class TargetMain {
 		JMenuItem genDataMenuItem = new JMenuItem("generateData");
 		menuBar.add(menuMain);
 		menuMain.add(genDataMenuItem);
+		GenerationOptions generationFrame = new GenerationOptions("Generation options");
+		generationFrame.setSize(800, 600);
 		genDataMenuItem.addActionListener(e->{
 			System.out.println("data generation");
-			GenerationOptions generationFrame = new GenerationOptions("Generation options");
-			generationFrame.setSize(800, 600);
 			generationFrame.setLocationRelativeTo(targetWindow);
 			generationFrame.setVisible(true);
+			generationFrame.setVisible(false);
+			generationFrame.setVisible(true);
+			
+			generationFrame.showPreviewBox();
 		});
 		
 		targetWindow.add(upperBox, BorderLayout.NORTH);
@@ -250,7 +248,7 @@ public class TargetMain {
 		return false;
 	}
 
-	private static Box createSliderBox(MyTargetLabel targetLabel, String labelText, int min, int max, int curValue, int orientation) {
+	private static Box createSliderBox(MyTarget targetLabel, String labelText, int min, int max, int curValue, int orientation) {
 		Box boxWithSlider = (orientation == JSlider.HORIZONTAL) ? new Box(BoxLayout.X_AXIS) : new Box(BoxLayout.Y_AXIS) ;
 		boxWithSlider.add(new JLabel(labelText));
 		JSlider slider = new JSlider(orientation, min, max, curValue);
