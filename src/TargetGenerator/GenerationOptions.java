@@ -45,9 +45,9 @@ public class GenerationOptions extends JFrame{
 			generateTargetImages(5, 1400, 1000);
 		});
 		Box genBtnBox = new Box(BoxLayout.X_AXIS);
-		JCheckBox showImages = new JCheckBox("Show preview");
-		showImages.addActionListener(e->{
-			if (showImages.isSelected()) {
+		JCheckBox showImagesChBox = new JCheckBox("Show preview");
+		showImagesChBox.addActionListener(e->{
+			if (showImagesChBox.isSelected()) {
 				imagesPreviewBox.setVisible(true);
 				imagesPreviewBox.setVisible(false);
 				imagesPreviewBox.setVisible(true);
@@ -70,7 +70,7 @@ public class GenerationOptions extends JFrame{
 			}
 			else imagesPreviewBox.setVisible(false);
 		});
-		genBtnBox.add(showImages);
+		genBtnBox.add(showImagesChBox);
 		genBtnBox.add(Box.createHorizontalGlue());
 		genBtnBox.add(genBtn);
 		Box northBox = new Box(BoxLayout.Y_AXIS);
@@ -99,8 +99,8 @@ public class GenerationOptions extends JFrame{
 		
 //		add(imageTo, BorderLayout.CENTER);
 		//TODO добавить генерацию нужного кол-ва мишеней с разными параметрами в отдельную папку
-		showImages.setSelected(true);
-		showImages.setSelected(false);
+		showImagesChBox.setSelected(true);
+		showImagesChBox.setSelected(false);
 		int w = imageFrom.getCurrentWidth();
 		int h = imageFrom.getCurrentHeight();
 		int radius = (w < h) ? w / 2 : h / 2 ;
