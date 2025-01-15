@@ -16,6 +16,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -42,16 +43,30 @@ public class GenerationOptions extends JFrame{
 
 		JButton genBtn = new JButton("Generate targets");
 		genBtn.addActionListener(e->{
-			generateTargetImages(5, 1400, 1000);
+			JFileChooser chooser;
+			chooser = new JFileChooser();
+	        chooser.setCurrentDirectory(new java.io.File(".")); // Set default directory
+	        chooser.setDialogTitle("Select a Directory");
+	        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Allow only directories
+	        chooser.setAcceptAllFileFilterUsed(false); // Disable "All files" option
+
+	        int returnValue = chooser.showOpenDialog(this);
+	        if (returnValue == JFileChooser.APPROVE_OPTION) {
+	        	String dirPath = chooser.getSelectedFile().getAbsolutePath(); 
+	            System.out.println("Selected Directory: " + dirPath);
+	            generateTargetImages(5, 1400, 1000, dirPath);
+	        } else {
+	            System.out.println("No Selection");
+	        }
 		});
 		Box genBtnBox = new Box(BoxLayout.X_AXIS);
 		JCheckBox showImagesChBox = new JCheckBox("Show preview");
 		showImagesChBox.addActionListener(e->{
 			if (showImagesChBox.isSelected()) {
+				imageFrom.repaint();
 				imagesPreviewBox.setVisible(true);
 				imagesPreviewBox.setVisible(false);
 				imagesPreviewBox.setVisible(true);
-				imageFrom.repaint();
 				System.out.println("imageFrom width = "+imageFrom.getCurrentWidth());
 				imageFrom.drawTarget(circlesFrom);
 				if (circlesFrom.getFirst().getRadius()==0) {
@@ -67,6 +82,8 @@ public class GenerationOptions extends JFrame{
 					circlesTo.add(new Circle(w/2, h/2, radius));
 					imageTo.drawTarget(circlesTo);
 				}
+				imagesPreviewBox.setVisible(false);
+				imagesPreviewBox.setVisible(true);
 			}
 			else imagesPreviewBox.setVisible(false);
 		});
@@ -156,7 +173,7 @@ public class GenerationOptions extends JFrame{
 		return boxWith2Sliders;
 	}
 
-	private void generateTargetImages(int n, int w, int h) {
+	private void generateTargetImages(int n, int w, int h, String dirPath) {
 		int width = w;
         int height = h;
         int between = 40;
@@ -183,7 +200,7 @@ public class GenerationOptions extends JFrame{
 	        }
 	        // Dispose of the graphics context
 	        g2d.dispose();
-	        File outputfile = new File("out"+i+".png");
+	        File outputfile = new File(dirPath+"\\"+"out"+i+".png");
 			try {
 				ImageIO.write(bufferedImage, "png", outputfile);
 			} catch (IOException e1) {
