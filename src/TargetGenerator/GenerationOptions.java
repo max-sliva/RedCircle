@@ -34,6 +34,13 @@ public class GenerationOptions extends JFrame{
 	Box imagesPreviewBox = new Box(BoxLayout.X_AXIS);
 	MyTarget imageFrom = new MyTarget("from");
 	MyTarget imageTo = new MyTarget("to");
+	int thickFrom = 0;
+	int thickTo = 0;
+	int circlesNfrom = 1;
+	int circlesNto = 1;
+	int betweenFrom = 0; 
+	int betweenTo = 0; 
+	
 	
 	public GenerationOptions(String title) {
 		super(title);
@@ -69,17 +76,24 @@ public class GenerationOptions extends JFrame{
 				imagesPreviewBox.setVisible(true);
 				System.out.println("imageFrom width = "+imageFrom.getCurrentWidth());
 				imageFrom.drawTarget(circlesFrom);
-				if (circlesFrom.getFirst().getRadius()==0) {
+				if (circlesFrom.getFirst().getRadius()==0) { //если еще нет кругов
 					circlesFrom.clear();
-					int w = imageFrom.getCurrentWidth();
-					int h = imageFrom.getCurrentHeight();
-					int radius = (w < h) ? w / 2 : h / 2 ;
-					circlesFrom.add(new Circle(w/2, h/2, radius));
+					int w = imageFrom.getCurrentWidth(); //ширина
+					int h = imageFrom.getCurrentHeight(); //высота
+					int radius = (w < h) ? (w/2): (h/2);  //радиус будет половиной от меньшего
+					circlesFrom.add(new Circle(w/2, h/2, (radius==0)? radius : radius-10-thickFrom, thickFrom));
 					imageFrom.drawTarget(circlesFrom);
+					circlesTo.clear();
 					w = imageTo.getCurrentWidth();
 					h = imageTo.getCurrentHeight();
-					radius = (w < h) ? w / 2 : h / 2 ;
-					circlesTo.add(new Circle(w/2, h/2, radius));
+					radius = (radius==0)? radius : radius-10-thickTo;
+					//для второго превью
+					System.out.println("betweenTo = "+betweenTo);
+					for (int i=0; i<circlesNto; i++) {
+						System.out.println("radius"+i+"= " + radius);
+						circlesTo.add(new Circle(w/2, h/2, radius, thickTo));
+						radius = radius - betweenTo;
+					}
 					imageTo.drawTarget(circlesTo);
 				}
 				imagesPreviewBox.setVisible(false);
@@ -152,6 +166,10 @@ public class GenerationOptions extends JFrame{
 		RangeSliderOld slider = new RangeSliderOld(minValue, maxValue);
 		slider.setValue(val1);
 		slider.setUpperValue(val2);
+		if (labelText.contains("thick")) {
+			thickFrom = val1;
+			thickTo = val2;
+		}
 		slider.setPaintTrack(true);
 		slider.setPaintTicks(true);
 		slider.setPaintLabels(true);
@@ -169,6 +187,58 @@ public class GenerationOptions extends JFrame{
 		slider.addChangeListener(e->{
 			val1Label.setText(" "+slider.getValue()+" ");
 			val2Label.setText(" "+slider.getUpperValue()+" ");
+			if (labelText.contains("thick")) {
+				thickFrom = slider.getValue();
+				thickTo = slider.getUpperValue();
+				circlesFrom.forEach(circle ->{
+					circle.setThickness(thickFrom);
+				});
+				circlesTo.forEach(circle ->{
+					circle.setThickness(thickTo);
+				});
+				imageFrom.drawTarget(circlesFrom);
+				imageTo.drawTarget(circlesTo);
+			}
+			if (labelText.contains("number")) {
+				circlesNfrom = slider.getValue();
+				circlesNto = slider.getUpperValue();
+				System.out.println("circlesNto = "+circlesNto);
+				//TODO сделать изменения в массивах кругов circlesFrom
+				imageFrom.drawTarget(circlesFrom);
+				circlesTo.clear();
+				int w = imageTo.getCurrentWidth();
+				int h = imageTo.getCurrentHeight();
+				int radius = (w < h) ? (w/2): (h/2); 
+				radius = (radius==0)? radius : radius-10-thickTo;
+				//для второго превью
+				System.out.println("betweenTo = "+betweenTo);
+				for (int i=0; i<circlesNto; i++) {
+					System.out.println("radius"+i+"= " + radius);
+					circlesTo.add(new Circle(w/2, h/2, radius, thickTo));
+					radius = radius - betweenTo;
+				}
+				imageTo.drawTarget(circlesTo);
+			}
+			if (labelText.contains("between")) {
+				betweenFrom = slider.getValue();
+				betweenTo = slider.getUpperValue();
+				System.out.println("betweenTo = "+betweenTo);
+				//TODO сделать изменения в массивах кругов circlesFrom
+				imageFrom.drawTarget(circlesFrom);
+				circlesTo.clear();
+				int w = imageTo.getCurrentWidth();
+				int h = imageTo.getCurrentHeight();
+				int radius = (w < h) ? (w/2): (h/2); 
+				radius = (radius==0)? radius : radius-10-thickTo;
+				//для второго превью
+				System.out.println("betweenTo = "+betweenTo);
+				for (int i=0; i<circlesNto; i++) {
+					System.out.println("radius"+i+"= " + radius);
+					circlesTo.add(new Circle(w/2, h/2, radius, thickTo));
+					radius = radius - betweenTo;
+				}
+				imageTo.drawTarget(circlesTo);
+			}
 		});
 		return boxWith2Sliders;
 	}

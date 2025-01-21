@@ -48,14 +48,8 @@ public class TargetMain {
 	static JCheckBox rebDotChBox = new JCheckBox("Red dot");
 	
 	public static void main(String[] args) {
-//		LookAndFeelFactory.installJideExtension(LookAndFeelFactory.EXTENSION_STYLE_VSNET);
 		try {
 			UIManager.setLookAndFeel("com.formdev.flatlaf.FlatLightLaf");
-//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-//			UIManager.setLookAndFeel(UIManager.createLookAndFeel("Windows"));
-//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-//		} catch (UnsupportedLookAndFeelException e) {
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
 			e.printStackTrace();

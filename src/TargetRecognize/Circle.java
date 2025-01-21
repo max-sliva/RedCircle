@@ -3,6 +3,7 @@ package TargetRecognize;
 import java.awt.Color;
 
 public class Circle extends MyPoint{
+
 	private int radius;
 	private int thickness = 10;
 	private Color color = Color.BLACK;
@@ -13,6 +14,12 @@ public class Circle extends MyPoint{
 		this.radius = radius;
 	}
 
+	public Circle(int x, int y, int radius, int thickness) {
+		super(x, y);
+		this.radius = radius;
+		this.thickness = thickness;
+	}
+	
 	public int getRadius() {
 		return radius;
 	}
