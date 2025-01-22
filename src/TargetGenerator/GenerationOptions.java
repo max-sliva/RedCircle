@@ -40,7 +40,7 @@ public class GenerationOptions extends JFrame{
 	int circlesNto = 1;
 	int betweenFrom = 0; 
 	int betweenTo = 0; 
-	
+//	int curCirclesNto = 2;
 	
 	public GenerationOptions(String title) {
 		super(title);
@@ -62,6 +62,7 @@ public class GenerationOptions extends JFrame{
 	        	String dirPath = chooser.getSelectedFile().getAbsolutePath(); 
 	            System.out.println("Selected Directory: " + dirPath);
 	            generateTargetImages(5, 1400, 1000, dirPath);
+	            System.out.println("---!!targets created!!---");
 	        } else {
 	            System.out.println("No Selection");
 	        }
@@ -129,7 +130,6 @@ public class GenerationOptions extends JFrame{
 //		System.out.println("imageFrom width = " + imageFrom.getCurrentWidth());
 		
 //		add(imageTo, BorderLayout.CENTER);
-		//TODO добавить генерацию нужного кол-ва мишеней с разными параметрами в отдельную папку
 		showImagesChBox.setSelected(true);
 		showImagesChBox.setSelected(false);
 		int w = imageFrom.getCurrentWidth();
@@ -202,9 +202,11 @@ public class GenerationOptions extends JFrame{
 			if (labelText.contains("number")) {
 				circlesNfrom = slider.getValue();
 				circlesNto = slider.getUpperValue();
+				System.out.println("circlesNfrom = "+circlesNfrom);
 				System.out.println("circlesNto = "+circlesNto);
 				//TODO сделать изменения в массивах кругов circlesFrom
 				imageFrom.drawTarget(circlesFrom);
+				
 				circlesTo.clear();
 				int w = imageTo.getCurrentWidth();
 				int h = imageTo.getCurrentHeight();
@@ -246,37 +248,37 @@ public class GenerationOptions extends JFrame{
 	private void generateTargetImages(int n, int w, int h, String dirPath) {
 		int width = w;
         int height = h;
-        int between = 40;
-        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+//        int between = betweenFrom;
         int radius = (width > height)? (height - 40) / 2 : (width - 40) / 2;  
 		BasicStroke pen;
-		// TODO добавить зависимость кол-ва файлов от толщины линии и расстояния между кругами
-		for (int i = 0; i < n; i++) {
-	        // Get the graphics context
-	        Graphics2D g2d = bufferedImage.createGraphics();
-			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	        // Draw something on the image
-	        pen = new BasicStroke(5);
-			g2d.setStroke(pen);
-	        g2d.setColor(Color.WHITE);
-	        g2d.fillRect(0, 0, width, height);
-	        g2d.setColor(Color.BLACK);
-	        for (int j = 0; j<=i; j++) {
-	        	int r = radius - between*j;
-				int d = r*2;
-				int X = width / 2;
-				int Y = height / 2;
-				g2d.drawOval(X-r, Y-r, d, d);				
-	        }
-	        // Dispose of the graphics context
-	        g2d.dispose();
-	        File outputfile = new File(dirPath+"\\"+"out"+i+".png");
-			try {
-				ImageIO.write(bufferedImage, "png", outputfile);
-			} catch (IOException e1) {
-				e1.printStackTrace();
+		// TODO добавить прогрессбар для ожидания завершения генерации изображений 
+		for (int between = betweenFrom; between<=betweenTo; between+=5) {
+			for (int thick = thickFrom; thick <= thickTo; thick+=2) {
+				for (int i = circlesNfrom; i <= circlesNto; i++) {
+					BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+					Graphics2D g2d = bufferedImage.createGraphics();
+					g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			        pen = new BasicStroke(thick);
+					g2d.setStroke(pen);
+			        g2d.setColor(Color.WHITE);
+			        g2d.fillRect(0, 0, width, height);
+			        g2d.setColor(Color.BLACK);
+			        for (int j = 1; j<=i; j++) {
+			        	int r = radius - between*j;
+						int d = r*2;
+						int X = width / 2;
+						int Y = height / 2;
+						g2d.drawOval(X-r, Y-r, d, d);				
+			        }
+			        g2d.dispose();
+			        File outputfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
+					try {
+						ImageIO.write(bufferedImage, "png", outputfile);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
 			}
 		}
 	}
-	
 }
