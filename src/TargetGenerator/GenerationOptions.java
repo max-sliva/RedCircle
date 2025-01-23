@@ -34,19 +34,20 @@ public class GenerationOptions extends JFrame{
 	Box imagesPreviewBox = new Box(BoxLayout.X_AXIS);
 	MyTarget imageFrom = new MyTarget("from");
 	MyTarget imageTo = new MyTarget("to");
-	int thickFrom = 0;
-	int thickTo = 0;
+	int thickFrom = 3;
+	int thickTo = 20;
 	int circlesNfrom = 1;
-	int circlesNto = 1;
-	int betweenFrom = 0; 
-	int betweenTo = 0; 
-//	int curCirclesNto = 2;
+	int circlesNto = 2;
+	int betweenFrom = 20; 
+	int betweenTo = 60; 
+	int filesNum = (circlesNto - circlesNfrom + 1)*((thickTo - thickFrom + 1) / 2)*((betweenTo - betweenFrom + 1)/5) ;
+	JLabel filesNumLabel = new JLabel("filesNum = "+filesNum);
 	
 	public GenerationOptions(String title) {
 		super(title);
-		Box circlesCountBox = create2ValueSliderBox("Circles number: ", 1, 10, 1, 2);
-		Box circlesThickBox = create2ValueSliderBox("Circles thickness: ", 1, 70, 3, 20);
-		Box circlesSpaceBox = create2ValueSliderBox("Circles between: ", 10, 100, 20, 60);
+		Box circlesCountBox = create2ValueSliderBox("Circles number: ", 1, 10, circlesNfrom, circlesNto);
+		Box circlesThickBox = create2ValueSliderBox("Circles thickness: ", 1, 70, thickFrom, thickTo);
+		Box circlesSpaceBox = create2ValueSliderBox("Circles between: ", 10, 100, betweenFrom, betweenTo);
 
 		JButton genBtn = new JButton("Generate targets");
 		genBtn.addActionListener(e->{
@@ -61,7 +62,7 @@ public class GenerationOptions extends JFrame{
 	        if (returnValue == JFileChooser.APPROVE_OPTION) {
 	        	String dirPath = chooser.getSelectedFile().getAbsolutePath(); 
 	            System.out.println("Selected Directory: " + dirPath);
-	            generateTargetImages(5, 1400, 1000, dirPath);
+	            generateTargetImages(1400, 1000, dirPath);
 	            System.out.println("---!!targets created!!---");
 	        } else {
 	            System.out.println("No Selection");
@@ -103,6 +104,8 @@ public class GenerationOptions extends JFrame{
 			else imagesPreviewBox.setVisible(false);
 		});
 		genBtnBox.add(showImagesChBox);
+		genBtnBox.add(Box.createHorizontalGlue());
+		genBtnBox.add(filesNumLabel);
 		genBtnBox.add(Box.createHorizontalGlue());
 		genBtnBox.add(genBtn);
 		Box northBox = new Box(BoxLayout.Y_AXIS);
@@ -241,11 +244,13 @@ public class GenerationOptions extends JFrame{
 				}
 				imageTo.drawTarget(circlesTo);
 			}
+			filesNum = (circlesNto - circlesNfrom + 1)*((thickTo - thickFrom)/2+1)*((betweenTo - betweenFrom)/5+1) ;
+			filesNumLabel.setText("filesNum = "+filesNum);
 		});
 		return boxWith2Sliders;
 	}
 
-	private void generateTargetImages(int n, int w, int h, String dirPath) {
+	private void generateTargetImages(int w, int h, String dirPath) {
 		int width = w;
         int height = h;
 //        int between = betweenFrom;
