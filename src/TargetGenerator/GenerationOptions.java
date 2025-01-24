@@ -3,6 +3,7 @@ package TargetGenerator;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -16,6 +17,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -42,6 +44,10 @@ public class GenerationOptions extends JFrame{
 	int betweenTo = 60; 
 	int filesNum = (circlesNto - circlesNfrom + 1)*((thickTo - thickFrom + 1) / 2)*((betweenTo - betweenFrom + 1)/5) ;
 	JLabel filesNumLabel = new JLabel("filesNum = "+filesNum);
+	int progressI = 0;
+	JLabel progressLabel = new JLabel("progressI = "+progressI);
+	BasicStroke pen;
+
 	
 	public GenerationOptions(String title) {
 		super(title);
@@ -118,6 +124,7 @@ public class GenerationOptions extends JFrame{
 //		MyTargetLabel imageFrom = new MyTargetLabel();
 		add(northBox, BorderLayout.NORTH);
 		add(imagesPreviewBox, BorderLayout.CENTER);
+		add(progressLabel, BorderLayout.SOUTH);
 		imagesPreviewBox.setVisible(false);
 //		MyTarget imageFrom = new MyTarget("from");
 //		MyTarget imageTo = new MyTarget("to");
@@ -255,35 +262,53 @@ public class GenerationOptions extends JFrame{
         int height = h;
 //        int between = betweenFrom;
         int radius = (width > height)? (height - 40) / 2 : (width - 40) / 2;  
-		BasicStroke pen;
-		// TODO добавить прогрессбар для ожидания завершения генерации изображений 
-		for (int between = betweenFrom; between<=betweenTo; between+=5) {
-			for (int thick = thickFrom; thick <= thickTo; thick+=2) {
-				for (int i = circlesNfrom; i <= circlesNto; i++) {
-					BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-					Graphics2D g2d = bufferedImage.createGraphics();
-					g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			        pen = new BasicStroke(thick);
-					g2d.setStroke(pen);
-			        g2d.setColor(Color.WHITE);
-			        g2d.fillRect(0, 0, width, height);
-			        g2d.setColor(Color.BLACK);
-			        for (int j = 1; j<=i; j++) {
-			        	int r = radius - between*j;
-						int d = r*2;
-						int X = width / 2;
-						int Y = height / 2;
-						g2d.drawOval(X-r, Y-r, d, d);				
-			        }
-			        g2d.dispose();
-			        File outputfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
-					try {
-						ImageIO.write(bufferedImage, "png", outputfile);
-					} catch (IOException e1) {
-						e1.printStackTrace();
+//		BasicStroke pen;
+		progressI = 0;
+//		JDialog progressDialog = new JDialog(this);
+////		JLabel progressLabel = new JLabel("progressI = "+progressI);
+//		progressDialog.getContentPane().add(progressLabel);
+//		progressDialog.setLocationRelativeTo(null);
+//		progressDialog.setVisible(true);
+		progressLabel.setText("progressI = "+progressI);
+		setEnabled(false);
+		// TODO добавить прогрессбар для ожидания завершения генерации изображений и открывать папку в конце
+		Thread progressThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+					for (int between = betweenFrom; between<=betweenTo; between+=5) {
+						for (int thick = thickFrom; thick <= thickTo; thick+=2) {
+							for (int i = circlesNfrom; i <= circlesNto; i++) {
+								BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+								Graphics2D g2d = bufferedImage.createGraphics();
+								g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+						        pen = new BasicStroke(thick);
+								g2d.setStroke(pen);
+						        g2d.setColor(Color.WHITE);
+						        g2d.fillRect(0, 0, width, height);
+						        g2d.setColor(Color.BLACK);
+						        for (int j = 1; j<=i; j++) {
+						        	int r = radius - between*j;
+									int d = r*2;
+									int X = width / 2;
+									int Y = height / 2;
+									g2d.drawOval(X-r, Y-r, d, d);
+						        }
+						        g2d.dispose();
+						        File outputfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
+								try {
+									ImageIO.write(bufferedImage, "png", outputfile);
+								} catch (IOException e1) {
+									e1.printStackTrace();
+								}
+								progressI++;
+								progressLabel.setText("progressI = "+progressI);
+								System.out.println("progressI = "+progressI);
+							}
+						}
 					}
-				}
+					setEnabled(true);
 			}
-		}
+		});
+		progressThread.start();
 	}
 }
