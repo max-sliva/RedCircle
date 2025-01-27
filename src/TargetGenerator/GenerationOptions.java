@@ -7,7 +7,9 @@ import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -294,12 +296,21 @@ public class GenerationOptions extends JFrame{
 									g2d.drawOval(X-r, Y-r, d, d);
 						        }
 						        g2d.dispose();
-						        File outputfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
-								try {
-									ImageIO.write(bufferedImage, "png", outputfile);
+						        File outputPNGfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
+						        File outputCSVfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".csv");
+						        FileWriter myWriter = null;
+						        try {
+									ImageIO.write(bufferedImage, "png", outputPNGfile);
+									myWriter=new FileWriter(outputCSVfile);
+									BufferedWriter myBWriter=new BufferedWriter(myWriter);
+									myBWriter.write("");
+									myBWriter.newLine();
+									myBWriter.close();//закрываем все соединения
+									myWriter.close();
 								} catch (IOException e1) {
 									e1.printStackTrace();
 								}
+								
 								progressI++;
 								progressLabel.setText("progressI = "+progressI);
 								System.out.println("progressI = "+progressI);
