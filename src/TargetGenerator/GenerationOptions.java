@@ -273,7 +273,7 @@ public class GenerationOptions extends JFrame{
 //		progressDialog.setVisible(true);
 		progressLabel.setText("progressI = "+progressI);
 		setEnabled(false);
-		// TODO добавить прогрессбар для ожидания завершения генерации изображений и открывать папку в конце
+		// TODO добавить красную точку и открывать папку в конце
 		Thread progressThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -303,6 +303,7 @@ public class GenerationOptions extends JFrame{
 									ImageIO.write(bufferedImage, "png", outputPNGfile);
 									myWriter=new FileWriter(outputCSVfile);
 									BufferedWriter myBWriter=new BufferedWriter(myWriter);
+									//TODO записать параметры кругов и красной точки
 									myBWriter.write("");
 									myBWriter.newLine();
 									myBWriter.close();//закрываем все соединения
