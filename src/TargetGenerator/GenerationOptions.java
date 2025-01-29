@@ -284,16 +284,23 @@ public class GenerationOptions extends JFrame{
 								Graphics2D g2d = bufferedImage.createGraphics();
 								g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 						        pen = new BasicStroke(thick);
+						        BasicStroke penForRec = new BasicStroke(1); //для отладочного вывода обрамляющего прямоугольника
 								g2d.setStroke(pen);
 						        g2d.setColor(Color.WHITE);
 						        g2d.fillRect(0, 0, width, height);
 						        g2d.setColor(Color.BLACK);
+						        ArrayList<MyLine> lineArr = new ArrayList<>();
+						        
 						        for (int j = 1; j<=i; j++) {
+						        	g2d.setStroke(pen);
 						        	int r = radius - between*j;
 									int d = r*2;
 									int X = width / 2;
 									int Y = height / 2;
 									g2d.drawOval(X-r, Y-r, d, d);
+//									g2d.setStroke(penForRec);
+//									g2d.drawRect(X-r-thick/2, Y-r-thick/2, d+thick, d+thick);
+									lineArr.add(new MyLine(X-r-thick/2, Y-r-thick/2, X+r+thick/2, Y+r+thick/2));
 						        }
 						        g2d.dispose();
 						        File outputPNGfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
@@ -304,7 +311,15 @@ public class GenerationOptions extends JFrame{
 									myWriter=new FileWriter(outputCSVfile);
 									BufferedWriter myBWriter=new BufferedWriter(myWriter);
 									//TODO записать параметры кругов и красной точки
-									myBWriter.write("");
+									lineArr.forEach(line ->{
+										try {
+											myBWriter.write("1 "+line.getX()+" "+line.getY()+" "+line.getX2()+" "+line.getY2());
+											myBWriter.newLine();
+										} catch (IOException e) {
+											e.printStackTrace();
+										}
+									});
+									//myBWriter.write("");
 									myBWriter.newLine();
 									myBWriter.close();//закрываем все соединения
 									myWriter.close();
@@ -314,7 +329,7 @@ public class GenerationOptions extends JFrame{
 								
 								progressI++;
 								progressLabel.setText("progressI = "+progressI);
-								System.out.println("progressI = "+progressI);
+//								System.out.println("progressI = "+progressI);
 							}
 						}
 					}

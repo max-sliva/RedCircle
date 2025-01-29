@@ -1,8 +1,8 @@
 package TargetRecognize;
 
 public class MyPoint {
-	private int x;
-	private int y;
+	protected int x;
+	protected int y;
 	
 	public MyPoint(int x, int y) {
 		super();
