@@ -110,6 +110,7 @@ public class TargetMain {
 				x = targetLabel.getWidth() / 2;
 				y = targetLabel.getHeight() / 2;
 				circles.clear();
+				//TODO сделать изменение радиусов всех кругов
 				circles.add(new Circle(x, y, rCurrent));
 				targetLabel.drawTarget(circles);
 			}

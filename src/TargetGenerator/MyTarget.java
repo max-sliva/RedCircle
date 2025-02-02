@@ -54,6 +54,10 @@ public class MyTarget extends JPanel {
 		repaint();
 	}
 	
+	public void setDrawDot(boolean dot) {
+		drawDot = dot;
+	}
+	
 	public void setBackColor(int grayValue) {
 		backColor = new Color(grayValue, grayValue, grayValue);
 //		backColor = 

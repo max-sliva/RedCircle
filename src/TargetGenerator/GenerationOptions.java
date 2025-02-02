@@ -6,6 +6,10 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -49,7 +53,7 @@ public class GenerationOptions extends JFrame{
 	int progressI = 0;
 	JLabel progressLabel = new JLabel("progressI = "+progressI);
 	BasicStroke pen;
-
+	JCheckBox rebDotChBox = new JCheckBox("Red dot");
 	
 	public GenerationOptions(String title) {
 		super(title);
@@ -77,6 +81,17 @@ public class GenerationOptions extends JFrame{
 	        }
 		});
 		Box genBtnBox = new Box(BoxLayout.X_AXIS);
+		rebDotChBox.addActionListener(e->{
+//			int w = imageTo.getCurrentWidth();
+//			int h = imageTo.getCurrentHeight();
+//			int radius = (w < h) ? (w/2): (h/2); 
+//			radius = (radius==0)? radius : radius-10-thickTo;
+//			if (rebDotChBox.isSelected()) {
+//				imageFrom.drawRedDot(radius-30, radius-30);
+//				imageTo.drawRedDot(radius-30, radius-30);
+//			}
+			redrawPreviewImages();
+		});
 		JCheckBox showImagesChBox = new JCheckBox("Show preview");
 		showImagesChBox.addActionListener(e->{
 			if (showImagesChBox.isSelected()) {
@@ -85,33 +100,38 @@ public class GenerationOptions extends JFrame{
 				imagesPreviewBox.setVisible(false);
 				imagesPreviewBox.setVisible(true);
 				System.out.println("imageFrom width = "+imageFrom.getCurrentWidth());
-				imageFrom.drawTarget(circlesFrom);
+//				imageFrom.drawTarget(circlesFrom);
 				if (circlesFrom.getFirst().getRadius()==0) { //если еще нет кругов
 					circlesFrom.clear();
 					int w = imageFrom.getCurrentWidth(); //ширина
 					int h = imageFrom.getCurrentHeight(); //высота
 					int radius = (w < h) ? (w/2): (h/2);  //радиус будет половиной от меньшего
 					circlesFrom.add(new Circle(w/2, h/2, (radius==0)? radius : radius-10-thickFrom, thickFrom));
-					imageFrom.drawTarget(circlesFrom);
+//					imageFrom.drawTarget(circlesFrom);
 					circlesTo.clear();
 					w = imageTo.getCurrentWidth();
 					h = imageTo.getCurrentHeight();
 					radius = (radius==0)? radius : radius-10-thickTo;
+//					if (rebDotChBox.isSelected()) {
+//						imageFrom.drawRedDot(radius-30, radius-30);
+//						imageTo.drawRedDot(radius-30, radius-30);
+//					}
+
 					//для второго превью
 					System.out.println("betweenTo = "+betweenTo);
-					for (int i=0; i<circlesNto; i++) {
-						System.out.println("radius"+i+"= " + radius);
-						circlesTo.add(new Circle(w/2, h/2, radius, thickTo));
-						radius = radius - betweenTo;
-					}
-					imageTo.drawTarget(circlesTo);
+					radius = updateCircles(w, h, radius, circlesTo);
+//					imageTo.drawTarget(circlesTo);
+					redrawPreviewImages();
 				}
 				imagesPreviewBox.setVisible(false);
 				imagesPreviewBox.setVisible(true);
+				redrawPreviewImages();
 			}
 			else imagesPreviewBox.setVisible(false);
 		});
 		genBtnBox.add(showImagesChBox);
+		genBtnBox.add(Box.createHorizontalGlue());
+		genBtnBox.add(rebDotChBox);
 		genBtnBox.add(Box.createHorizontalGlue());
 		genBtnBox.add(filesNumLabel);
 		genBtnBox.add(Box.createHorizontalGlue());
@@ -148,12 +168,22 @@ public class GenerationOptions extends JFrame{
 		int h = imageFrom.getCurrentHeight();
 		int radius = (w < h) ? w / 2 : h / 2 ;
 		circlesFrom.add(new Circle(w/2, h/2, radius));
-		imageFrom.drawTarget(circlesFrom);
+//		imageFrom.drawTarget(circlesFrom);
 		w = imageTo.getCurrentWidth();
 		h = imageTo.getCurrentHeight();
 		radius = (w < h) ? w / 2 : h / 2 ;
 		circlesTo.add(new Circle(w/2, h/2, radius));
-		imageTo.drawTarget(circlesTo);
+//		imageTo.drawTarget(circlesTo);
+		redrawPreviewImages();
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				System.out.println("in resize");
+				//TODO сделать изменение радиусов всех кругов
+				
+				redrawPreviewImages();
+			}
+		});
 	}
 	
 	public void showPreviewBox() {
@@ -169,6 +199,23 @@ public class GenerationOptions extends JFrame{
 //		imageTo.repaint();
 		System.out.println("imageFrom width = " + imageFrom.getCurrentWidth());
 
+	}
+	
+	private void redrawPreviewImages() {
+		int w = imageTo.getCurrentWidth();
+		int h = imageTo.getCurrentHeight();
+		int radius = (w < h) ? (w/2): (h/2); 
+		radius = (radius==0)? radius : radius-10-thickTo;
+		if (rebDotChBox.isSelected()) {
+			imageFrom.drawRedDot(radius-30, radius-30);
+			imageTo.drawRedDot(radius-30, radius-30);
+		} else {
+			imageFrom.setDrawDot(false);
+			imageTo.setDrawDot(false);
+		}
+		imageFrom.drawTarget(circlesFrom);
+		imageTo.drawTarget(circlesTo);
+		
 	}
 	
 	private Box create2ValueSliderBox(String labelText, int minValue, int maxValue, int val1, int val2) {
@@ -199,6 +246,11 @@ public class GenerationOptions extends JFrame{
 		slider.addChangeListener(e->{
 			val1Label.setText(" "+slider.getValue()+" ");
 			val2Label.setText(" "+slider.getUpperValue()+" ");
+			int w = imageTo.getCurrentWidth();
+			int h = imageTo.getCurrentHeight();
+			int radius = (w < h) ? (w/2): (h/2); 
+			radius = (radius==0)? radius : radius-10-thickTo;
+
 			if (labelText.contains("thick")) {
 				thickFrom = slider.getValue();
 				thickTo = slider.getUpperValue();
@@ -208,8 +260,9 @@ public class GenerationOptions extends JFrame{
 				circlesTo.forEach(circle ->{
 					circle.setThickness(thickTo);
 				});
-				imageFrom.drawTarget(circlesFrom);
-				imageTo.drawTarget(circlesTo);
+				
+//				imageFrom.drawTarget(circlesFrom);
+//				imageTo.drawTarget(circlesTo);
 			}
 			if (labelText.contains("number")) {
 				circlesNfrom = slider.getValue();
@@ -217,46 +270,55 @@ public class GenerationOptions extends JFrame{
 				System.out.println("circlesNfrom = "+circlesNfrom);
 				System.out.println("circlesNto = "+circlesNto);
 				//TODO сделать изменения в массивах кругов circlesFrom
-				imageFrom.drawTarget(circlesFrom);
+//				imageFrom.drawTarget(circlesFrom);
 				
 				circlesTo.clear();
-				int w = imageTo.getCurrentWidth();
-				int h = imageTo.getCurrentHeight();
-				int radius = (w < h) ? (w/2): (h/2); 
-				radius = (radius==0)? radius : radius-10-thickTo;
+//				int w = imageTo.getCurrentWidth();
+//				int h = imageTo.getCurrentHeight();
+//				int radius = (w < h) ? (w/2): (h/2); 
+//				radius = (radius==0)? radius : radius-10-thickTo;
 				//для второго превью
-				System.out.println("betweenTo = "+betweenTo);
-				for (int i=0; i<circlesNto; i++) {
-					System.out.println("radius"+i+"= " + radius);
-					circlesTo.add(new Circle(w/2, h/2, radius, thickTo));
-					radius = radius - betweenTo;
-				}
-				imageTo.drawTarget(circlesTo);
+//				System.out.println("number = "+number);
+				radius = updateCircles(w, h, radius, circlesTo);
+//				imageTo.drawTarget(circlesTo);
 			}
 			if (labelText.contains("between")) {
 				betweenFrom = slider.getValue();
 				betweenTo = slider.getUpperValue();
 				System.out.println("betweenTo = "+betweenTo);
 				//TODO сделать изменения в массивах кругов circlesFrom
-				imageFrom.drawTarget(circlesFrom);
+//				imageFrom.drawTarget(circlesFrom);
 				circlesTo.clear();
-				int w = imageTo.getCurrentWidth();
-				int h = imageTo.getCurrentHeight();
-				int radius = (w < h) ? (w/2): (h/2); 
-				radius = (radius==0)? radius : radius-10-thickTo;
+//				int w = imageTo.getCurrentWidth();
+//				int h = imageTo.getCurrentHeight();
+//				int radius = (w < h) ? (w/2): (h/2); 
+//				radius = (radius==0)? radius : radius-10-thickTo;
+//				if (rebDotChBox.isSelected()) {
+//					imageFrom.drawRedDot(radius-30, radius-30);
+//					imageTo.drawRedDot(radius-30, radius-30);
+//				}
 				//для второго превью
 				System.out.println("betweenTo = "+betweenTo);
-				for (int i=0; i<circlesNto; i++) {
-					System.out.println("radius"+i+"= " + radius);
-					circlesTo.add(new Circle(w/2, h/2, radius, thickTo));
-					radius = radius - betweenTo;
-				}
-				imageTo.drawTarget(circlesTo);
+				radius = updateCircles(w, h, radius, circlesTo);
 			}
+//			if (rebDotChBox.isSelected()) {
+//				imageFrom.drawRedDot(radius-30, radius-30);
+//				imageTo.drawRedDot(radius-30, radius-30);
+//			}
+			redrawPreviewImages();
 			filesNum = (circlesNto - circlesNfrom + 1)*((thickTo - thickFrom)/2+1)*((betweenTo - betweenFrom)/5+1) ;
 			filesNumLabel.setText("filesNum = "+filesNum);
 		});
 		return boxWith2Sliders;
+	}
+
+	private int updateCircles(int w, int h, int radius, ArrayList <Circle> circlesArr) {
+		for (int i=0; i<circlesNto; i++) {
+			System.out.println("radius"+i+"= " + radius);
+			circlesArr.add(new Circle(w/2, h/2, radius, thickTo));
+			radius = radius - betweenTo;
+		}
+		return radius;
 	}
 
 	private void generateTargetImages(int w, int h, String dirPath) {
@@ -302,6 +364,14 @@ public class GenerationOptions extends JFrame{
 //									g2d.drawRect(X-r-thick/2, Y-r-thick/2, d+thick, d+thick);
 									lineArr.add(new MyLine(X-r-thick/2, Y-r-thick/2, X+r+thick/2, Y+r+thick/2));
 						        }
+								if (rebDotChBox.isSelected()) {
+									BasicStroke pen2 = new BasicStroke(2);
+									g2d.setStroke(pen2);
+									g2d.setColor(Color.red);
+									int X = width / 2;
+									int Y = height / 2;
+									g2d.fillOval(X-3, Y-3, 6, 6);
+								}
 						        g2d.dispose();
 						        File outputPNGfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
 						        File outputCSVfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".csv");
