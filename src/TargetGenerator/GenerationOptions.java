@@ -352,6 +352,7 @@ public class GenerationOptions extends JFrame{
 						        g2d.fillRect(0, 0, width, height);
 						        g2d.setColor(Color.BLACK);
 						        ArrayList<MyLine> lineArr = new ArrayList<>();
+						        MyLine redDotLine;
 						        
 						        for (int j = 1; j<=i; j++) {
 						        	g2d.setStroke(pen);
@@ -365,12 +366,16 @@ public class GenerationOptions extends JFrame{
 									lineArr.add(new MyLine(X-r-thick/2, Y-r-thick/2, X+r+thick/2, Y+r+thick/2));
 						        }
 								if (rebDotChBox.isSelected()) {
-									BasicStroke pen2 = new BasicStroke(2);
+									BasicStroke pen2 = new BasicStroke(1);
 									g2d.setStroke(pen2);
 									g2d.setColor(Color.red);
 									int X = width / 2;
 									int Y = height / 2;
 									g2d.fillOval(X-3, Y-3, 6, 6);
+//									g2d.setColor(Color.green);
+									//pen2 = new BasicStroke(1);
+//									g2d.drawRect(X-3, Y-3, 6, 6);
+									redDotLine = new MyLine(X-3, Y-3, X+3, Y+3);
 								}
 						        g2d.dispose();
 						        File outputPNGfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
@@ -380,7 +385,6 @@ public class GenerationOptions extends JFrame{
 									ImageIO.write(bufferedImage, "png", outputPNGfile);
 									myWriter=new FileWriter(outputCSVfile);
 									BufferedWriter myBWriter=new BufferedWriter(myWriter);
-									//TODO записать параметры кругов и красной точки
 									lineArr.forEach(line ->{
 										try {
 											myBWriter.write("1 "+line.getX()+" "+line.getY()+" "+line.getX2()+" "+line.getY2());
@@ -389,6 +393,7 @@ public class GenerationOptions extends JFrame{
 											e.printStackTrace();
 										}
 									});
+									//TODO записать параметры красной точки
 									//myBWriter.write("");
 									myBWriter.newLine();
 									myBWriter.close();//закрываем все соединения
