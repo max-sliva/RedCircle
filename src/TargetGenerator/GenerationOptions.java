@@ -3,6 +3,7 @@ package TargetGenerator;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -16,6 +17,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -335,14 +337,15 @@ public class GenerationOptions extends JFrame{
 //		progressDialog.setVisible(true);
 		progressLabel.setText("progressI = "+progressI);
 		setEnabled(false);
-		// TODO добавить красную точку и открывать папку в конце
 		Thread progressThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				Random rand = new Random();
 					for (int between = betweenFrom; between<=betweenTo; between+=5) {
 						for (int thick = thickFrom; thick <= thickTo; thick+=2) {
 							for (int i = circlesNfrom; i <= circlesNto; i++) {
-								BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+//								BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB); //это было для png
+								BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB); //это сделал для jpg
 								Graphics2D g2d = bufferedImage.createGraphics();
 								g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 						        pen = new BasicStroke(thick);
@@ -352,7 +355,7 @@ public class GenerationOptions extends JFrame{
 						        g2d.fillRect(0, 0, width, height);
 						        g2d.setColor(Color.BLACK);
 						        ArrayList<MyLine> lineArr = new ArrayList<>();
-						        MyLine redDotLine;
+						        MyLine redDotLine = null;
 						        
 						        for (int j = 1; j<=i; j++) {
 						        	g2d.setStroke(pen);
@@ -369,8 +372,10 @@ public class GenerationOptions extends JFrame{
 									BasicStroke pen2 = new BasicStroke(1);
 									g2d.setStroke(pen2);
 									g2d.setColor(Color.red);
-									int X = width / 2;
-									int Y = height / 2;
+//									int X = width / 2;
+									int X = rand.nextInt(lineArr.getFirst().getX(), lineArr.getFirst().getX2());
+//									int Y = height / 2;
+									int Y = rand.nextInt(lineArr.getFirst().getY(), lineArr.getFirst().getY2());
 									g2d.fillOval(X-3, Y-3, 6, 6);
 //									g2d.setColor(Color.green);
 									//pen2 = new BasicStroke(1);
@@ -378,14 +383,15 @@ public class GenerationOptions extends JFrame{
 									redDotLine = new MyLine(X-3, Y-3, X+3, Y+3);
 								}
 						        g2d.dispose();
-						        File outputPNGfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
-						        File outputCSVfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".csv");
+//						        File outputPNGfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
+						        File outputPNGfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".jpg");
+						        File outputCSVfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".txt");
 						        FileWriter myWriter = null;
 						        try {
-									ImageIO.write(bufferedImage, "png", outputPNGfile);
+									ImageIO.write(bufferedImage, "jpg", outputPNGfile);
 									myWriter=new FileWriter(outputCSVfile);
 									BufferedWriter myBWriter=new BufferedWriter(myWriter);
-									lineArr.forEach(line ->{
+									lineArr.forEach(line ->{ //записываем параметры кругов
 										try {
 											myBWriter.write("1 "+line.getX()+" "+line.getY()+" "+line.getX2()+" "+line.getY2());
 											myBWriter.newLine();
@@ -393,8 +399,8 @@ public class GenerationOptions extends JFrame{
 											e.printStackTrace();
 										}
 									});
-									//TODO записать параметры красной точки
-									//myBWriter.write("");
+									//пишем параметры красной точки
+									myBWriter.write("0 "+redDotLine.getX()+" "+redDotLine.getY()+" "+redDotLine.getX2()+" "+redDotLine.getY2());
 									myBWriter.newLine();
 									myBWriter.close();//закрываем все соединения
 									myWriter.close();
@@ -409,6 +415,13 @@ public class GenerationOptions extends JFrame{
 						}
 					}
 					setEnabled(true);
+					 File directory = new File(dirPath);
+					 try {
+						Desktop.getDesktop().open(directory);
+					} catch (IOException e) {
+						e.printStackTrace();
+						System.out.println("trouble with opening folder");
+					}
 			}
 		});
 		progressThread.start();
