@@ -182,7 +182,7 @@ public class GenerationOptions extends JFrame{
 			public void componentResized(ComponentEvent e) {
 				System.out.println("in resize");
 				//TODO сделать изменение радиусов всех кругов
-				
+				System.out.println("window resize");
 				redrawPreviewImages();
 			}
 		});
