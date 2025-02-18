@@ -62,6 +62,7 @@ public class GenerationOptions extends JFrame{
 		Box circlesCountBox = create2ValueSliderBox("Circles number: ", 1, 10, circlesNfrom, circlesNto);
 		Box circlesThickBox = create2ValueSliderBox("Circles thickness: ", 1, 70, thickFrom, thickTo);
 		Box circlesSpaceBox = create2ValueSliderBox("Circles between: ", 10, 100, betweenFrom, betweenTo);
+		//TODO добавить изменение кол-ва красных точек (от 1 до 5) и цвета фона и самих кругов 
 
 		JButton genBtn = new JButton("Generate targets");
 		genBtn.addActionListener(e->{
