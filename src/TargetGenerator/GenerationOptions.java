@@ -62,7 +62,9 @@ public class GenerationOptions extends JFrame{
 		Box circlesCountBox = create2ValueSliderBox("Circles number: ", 1, 10, circlesNfrom, circlesNto);
 		Box circlesThickBox = create2ValueSliderBox("Circles thickness: ", 1, 70, thickFrom, thickTo);
 		Box circlesSpaceBox = create2ValueSliderBox("Circles between: ", 10, 100, betweenFrom, betweenTo);
-		//TODO добавить изменение кол-ва красных точек (от 1 до 5) и цвета фона и самих кругов 
+		//TODO добавить изменение кол-ва красных точек (от 1 до 5) 
+//		Box bgColorBox = create2ValueSliderBox("Background color: ", 255, 0, 255, 155); //TODO сделать обычным слайдером
+		Box circleColorBox = create2ValueSliderBox("Circle color: ", 0, 255, 0, 155);
 
 		JButton genBtn = new JButton("Generate targets");
 		genBtn.addActionListener(e->{
@@ -143,6 +145,8 @@ public class GenerationOptions extends JFrame{
 		northBox.add(circlesCountBox);
 		northBox.add(circlesThickBox);
 		northBox.add(circlesSpaceBox);
+//		northBox.add(bgColorBox);
+		northBox.add(circleColorBox);
 		northBox.add(genBtnBox);
 		
 //		Box imagesPreviewBox = new Box(BoxLayout.X_AXIS);
