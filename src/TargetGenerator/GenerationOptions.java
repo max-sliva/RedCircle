@@ -49,7 +49,8 @@ public class GenerationOptions extends JFrame{
 	int circlesNfrom = 1;
 	int circlesNto = 2;
 	int betweenFrom = 20; 
-	int betweenTo = 60; 
+	int betweenTo = 60;
+	int bgColor = 155;
 	int filesNum = (circlesNto - circlesNfrom + 1)*((thickTo - thickFrom + 1) / 2)*((betweenTo - betweenFrom + 1)/5) ;
 	JLabel filesNumLabel = new JLabel("filesNum = "+filesNum);
 	int progressI = 0;
@@ -62,10 +63,11 @@ public class GenerationOptions extends JFrame{
 		Box circlesCountBox = create2ValueSliderBox("Circles number: ", 1, 10, circlesNfrom, circlesNto);
 		Box circlesThickBox = create2ValueSliderBox("Circles thickness: ", 1, 70, thickFrom, thickTo);
 		Box circlesSpaceBox = create2ValueSliderBox("Circles between: ", 10, 100, betweenFrom, betweenTo);
-		//TODO добавить изменение кол-ва красных точек (от 1 до 5) 
-//		Box bgColorBox = create2ValueSliderBox("Background color: ", 255, 0, 255, 155); //TODO сделать обычным слайдером
+		Box bgColorBox = create2ValueSliderBox("Background color: ", 0, 255, 255, 155); 
 		Box circleColorBox = create2ValueSliderBox("Circle color: ", 0, 255, 0, 155);
-
+		//TODO добавить изменение кол-ва красных точек (от 1 до 5) 
+		
+		imageTo.setBackColor(bgColor);
 		JButton genBtn = new JButton("Generate targets");
 		genBtn.addActionListener(e->{
 			JFileChooser chooser;
@@ -145,7 +147,7 @@ public class GenerationOptions extends JFrame{
 		northBox.add(circlesCountBox);
 		northBox.add(circlesThickBox);
 		northBox.add(circlesSpaceBox);
-//		northBox.add(bgColorBox);
+		northBox.add(bgColorBox);
 		northBox.add(circleColorBox);
 		northBox.add(genBtnBox);
 		
@@ -160,6 +162,7 @@ public class GenerationOptions extends JFrame{
 		imagesPreviewBox.add(imageFrom);
 		imagesPreviewBox.add(new JLabel("-->"));
 		imagesPreviewBox.add(imageTo);
+//		imageTo.setBackColor(betweenFrom)
 		imagesPreviewBox.setBorder(BorderFactory.createLineBorder(Color.blue, 3));
 		System.out.println("gen window is shown");
 ////		System.out.println("imagesPreviewBox width = " + imagesPreviewBox.getWidth());
@@ -230,29 +233,46 @@ public class GenerationOptions extends JFrame{
 		JLabel sliderLabel = new JLabel(labelText);
 //		RangeSlider slider = new RangeSlider(minValue, maxValue, val1, val2);
 		RangeSliderOld slider = new RangeSliderOld(minValue, maxValue);
-		slider.setValue(val1);
-		slider.setUpperValue(val2);
 		if (labelText.contains("thick")) {
 			thickFrom = val1;
 			thickTo = val2;
 		}
+		JLabel val1Label = new JLabel(" "+val1+" ");
+		val1Label.setBorder(BorderFactory.createLineBorder(Color.gray, 2));
+		JLabel val2Label = new JLabel(" "+val2+" ");
+		val2Label.setBorder(BorderFactory.createLineBorder(Color.gray, 2));
+		if (labelText.contains("Background")) {
+			slider.setInverted(true);
+			int temp = val2;
+			val2 = val1;
+			val1 = temp;
+			val1Label.setText(" "+val2+" ");
+			val2Label.setText(" "+val1+" ");
+		}
+		slider.setValue(val1);
+		slider.setUpperValue(val2);
 		slider.setPaintTrack(true);
 		slider.setPaintTicks(true);
 		slider.setPaintLabels(true);
 		slider.setMajorTickSpacing((maxValue - minValue) / 4 );
 		slider.setMinorTickSpacing((maxValue - minValue+1) / 10);
 		boxWith2Sliders.add(sliderLabel);
-		JLabel val1Label = new JLabel(" "+val1+" ");
-		val1Label.setBorder(BorderFactory.createLineBorder(Color.gray, 2));
-		JLabel val2Label = new JLabel(" "+val2+" ");
-		val2Label.setBorder(BorderFactory.createLineBorder(Color.gray, 2));
+
 		boxWith2Sliders.add(val1Label);
 		boxWith2Sliders.add(new JLabel("-"));
 		boxWith2Sliders.add(val2Label);
 		boxWith2Sliders.add(slider);
 		slider.addChangeListener(e->{
-			val1Label.setText(" "+slider.getValue()+" ");
-			val2Label.setText(" "+slider.getUpperValue()+" ");
+			if (labelText.contains("Background")) {
+				val2Label.setText(" "+slider.getValue()+" ");
+				val1Label.setText(" "+slider.getUpperValue()+" ");
+				imageTo.setBackColor(slider.getValue());
+				System.out.println("Background color imageTo = "+slider.getValue());
+			}
+			else {
+				val1Label.setText(" "+slider.getValue()+" ");
+				val2Label.setText(" "+slider.getUpperValue()+" ");
+			}
 			int w = imageTo.getCurrentWidth();
 			int h = imageTo.getCurrentHeight();
 			int radius = (w < h) ? (w/2): (h/2); 
@@ -274,8 +294,8 @@ public class GenerationOptions extends JFrame{
 			if (labelText.contains("number")) {
 				circlesNfrom = slider.getValue();
 				circlesNto = slider.getUpperValue();
-				System.out.println("circlesNfrom = "+circlesNfrom);
-				System.out.println("circlesNto = "+circlesNto);
+//				System.out.println("circlesNfrom = "+circlesNfrom);
+//				System.out.println("circlesNto = "+circlesNto);
 				//TODO сделать изменения в массивах кругов circlesFrom
 //				imageFrom.drawTarget(circlesFrom);
 				
@@ -292,7 +312,7 @@ public class GenerationOptions extends JFrame{
 			if (labelText.contains("between")) {
 				betweenFrom = slider.getValue();
 				betweenTo = slider.getUpperValue();
-				System.out.println("betweenTo = "+betweenTo);
+//				System.out.println("betweenTo = "+betweenTo);
 				//TODO сделать изменения в массивах кругов circlesFrom
 //				imageFrom.drawTarget(circlesFrom);
 				circlesTo.clear();
@@ -305,7 +325,7 @@ public class GenerationOptions extends JFrame{
 //					imageTo.drawRedDot(radius-30, radius-30);
 //				}
 				//для второго превью
-				System.out.println("betweenTo = "+betweenTo);
+//				System.out.println("betweenTo = "+betweenTo);
 				radius = updateCircles(w, h, radius, circlesTo);
 			}
 //			if (rebDotChBox.isSelected()) {
@@ -346,6 +366,7 @@ public class GenerationOptions extends JFrame{
 			@Override
 			public void run() {
 				Random rand = new Random();
+				//TODO добавить цикл для цвета фона и цвета линий 
 					for (int between = betweenFrom; between<=betweenTo; between+=5) {
 						for (int thick = thickFrom; thick <= thickTo; thick+=2) {
 							for (int i = circlesNfrom; i <= circlesNto; i++) {
