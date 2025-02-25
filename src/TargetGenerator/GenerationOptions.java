@@ -30,6 +30,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
 import TargetRecognize.Circle;
 
@@ -50,9 +52,13 @@ public class GenerationOptions extends JFrame {
 	int circlesNto = 2;
 	int betweenFrom = 20;
 	int betweenTo = 60;
-	int bgColor = 155;
+	int bgColorFrom = 255;
+	int bgColorTo = 155;
+	int circleColorFrom = 0;
+	int circleColorTo = 155;
 	int filesNum = (circlesNto - circlesNfrom + 1) * ((thickTo - thickFrom + 1) / 2)
 			* ((betweenTo - betweenFrom + 1) / 5);
+	int redDotNumber = 5;
 	JLabel filesNumLabel = new JLabel("filesNum = " + filesNum);
 	int progressI = 0;
 	JLabel progressLabel = new JLabel("progressI = " + progressI);
@@ -66,9 +72,8 @@ public class GenerationOptions extends JFrame {
 		Box circlesSpaceBox = create2ValueSliderBox("Circles between: ", 10, 100, betweenFrom, betweenTo);
 		Box bgColorBox = create2ValueSliderBox("Background color: ", 0, 255, 255, 155);
 		Box circleColorBox = create2ValueSliderBox("Circle color: ", 0, 255, 0, 155);
-		// TODO добавить изменение кол-ва красных точек (от 1 до 5)
 
-		imageTo.setBackColor(bgColor);
+		imageTo.setBackColor(bgColorTo);
 		JButton genBtn = new JButton("Generate targets");
 		genBtn.addActionListener(e -> {
 			JFileChooser chooser;
@@ -89,6 +94,12 @@ public class GenerationOptions extends JFrame {
 			}
 		});
 		Box genBtnBox = new Box(BoxLayout.X_AXIS);
+		JSpinner redDotNspinner = new JSpinner(new SpinnerNumberModel(5, 1, 10, 1));
+		redDotNspinner.setEnabled(false);
+		redDotNspinner.addChangeListener(e->{
+			redDotNumber = (int) redDotNspinner.getValue();
+			System.out.println("redDotNumber = "+redDotNumber);
+		});
 		rebDotChBox.addActionListener(e -> {
 //			int w = imageTo.getCurrentWidth();
 //			int h = imageTo.getCurrentHeight();
@@ -98,6 +109,7 @@ public class GenerationOptions extends JFrame {
 //				imageFrom.drawRedDot(radius-30, radius-30);
 //				imageTo.drawRedDot(radius-30, radius-30);
 //			}
+			redDotNspinner.setEnabled(rebDotChBox.isSelected());
 			redrawPreviewImages();
 		});
 		JCheckBox showImagesChBox = new JCheckBox("Show preview");
@@ -128,7 +140,7 @@ public class GenerationOptions extends JFrame {
 
 					// для второго превью
 					System.out.println("betweenTo = " + betweenTo);
-					radius = updateCircles(w, h, radius, circlesTo);
+					radius = updateCircles(w, h, radius);
 //					imageTo.drawTarget(circlesTo);
 					redrawPreviewImages();
 				}
@@ -138,9 +150,12 @@ public class GenerationOptions extends JFrame {
 			} else
 				imagesPreviewBox.setVisible(false);
 		});
+		
 		genBtnBox.add(showImagesChBox);
 		genBtnBox.add(Box.createHorizontalGlue());
 		genBtnBox.add(rebDotChBox);
+		genBtnBox.add(Box.createHorizontalStrut(10));
+		genBtnBox.add(redDotNspinner);
 		genBtnBox.add(Box.createHorizontalGlue());
 		genBtnBox.add(filesNumLabel);
 		genBtnBox.add(Box.createHorizontalGlue());
@@ -219,8 +234,10 @@ public class GenerationOptions extends JFrame {
 		int radius = (w < h) ? (w / 2) : (h / 2);
 		radius = (radius == 0) ? radius : radius - 10 - thickTo;
 		if (rebDotChBox.isSelected()) {
-			imageFrom.drawRedDot(radius - 30, radius - 30);
-			imageTo.drawRedDot(radius - 30, radius - 30);
+//			imageFrom.drawRedDot(radius - 30, radius - 30);
+//			imageTo.drawRedDot(radius - 30, radius - 30);
+			imageFrom.drawNRedDots(redDotNumber, radius - 30, radius - 30);
+			imageTo.drawNRedDots(redDotNumber, radius - 30, radius - 30);
 		} else {
 			imageFrom.setDrawDot(false);
 			imageTo.setDrawDot(false);
@@ -268,6 +285,7 @@ public class GenerationOptions extends JFrame {
 			if (labelText.contains("Background")) {
 				val2Label.setText(" " + slider.getValue() + " ");
 				val1Label.setText(" " + slider.getUpperValue() + " ");
+				imageFrom.setBackColor(slider.getUpperValue());
 				imageTo.setBackColor(slider.getValue());
 				System.out.println("Background color imageTo = " + slider.getValue());
 			} else {
@@ -275,6 +293,7 @@ public class GenerationOptions extends JFrame {
 				val2Label.setText(" " + slider.getUpperValue() + " ");
 			}
 			if (labelText.contains("Circle color")) {
+				imageFrom.setCircleColor(slider.getValue());
 				imageTo.setCircleColor(slider.getUpperValue());
 			}
 			int w = imageTo.getCurrentWidth();
@@ -300,9 +319,9 @@ public class GenerationOptions extends JFrame {
 				circlesNto = slider.getUpperValue();
 //				System.out.println("circlesNfrom = "+circlesNfrom);
 //				System.out.println("circlesNto = "+circlesNto);
-				// TODO сделать изменения в массивах кругов circlesFrom
+				// TODO проверить, почему в мишени circlesNfrom по умолчанию 2 круга
 //				imageFrom.drawTarget(circlesFrom);
-
+				circlesFrom.clear();
 				circlesTo.clear();
 //				int w = imageTo.getCurrentWidth();
 //				int h = imageTo.getCurrentHeight();
@@ -310,16 +329,16 @@ public class GenerationOptions extends JFrame {
 //				radius = (radius==0)? radius : radius-10-thickTo;
 				// для второго превью
 //				System.out.println("number = "+number);
-				radius = updateCircles(w, h, radius, circlesTo);
+				radius = updateCircles(w, h, radius);
 //				imageTo.drawTarget(circlesTo);
 			}
 			if (labelText.contains("between")) {
 				betweenFrom = slider.getValue();
 				betweenTo = slider.getUpperValue();
 //				System.out.println("betweenTo = "+betweenTo);
-				// TODO сделать изменения в массивах кругов circlesFrom
 //				imageFrom.drawTarget(circlesFrom);
 				circlesTo.clear();
+				circlesFrom.clear();
 //				int w = imageTo.getCurrentWidth();
 //				int h = imageTo.getCurrentHeight();
 //				int radius = (w < h) ? (w/2): (h/2); 
@@ -330,7 +349,7 @@ public class GenerationOptions extends JFrame {
 //				}
 				// для второго превью
 //				System.out.println("betweenTo = "+betweenTo);
-				radius = updateCircles(w, h, radius, circlesTo);
+				radius = updateCircles(w, h, radius);
 			}
 //			if (rebDotChBox.isSelected()) {
 //				imageFrom.drawRedDot(radius-30, radius-30);
@@ -344,11 +363,17 @@ public class GenerationOptions extends JFrame {
 		return boxWith2Sliders;
 	}
 
-	private int updateCircles(int w, int h, int radius, ArrayList<Circle> circlesArr) {
+	private int updateCircles(int w, int h, int radius) {
+		int tempRadius = radius;
 		for (int i = 0; i < circlesNto; i++) {
 			System.out.println("radius" + i + "= " + radius);
-			circlesArr.add(new Circle(w / 2, h / 2, radius, thickTo));
+			circlesTo.add(new Circle(w / 2, h / 2, radius, thickTo));
 			radius = radius - betweenTo;
+		}
+		for (int i = 0; i < circlesNfrom; i++) {
+			System.out.println("radius" + i + "= " + tempRadius);
+			circlesFrom.add(new Circle(w / 2, h / 2, tempRadius, thickFrom));
+			tempRadius = tempRadius - betweenFrom;
 		}
 		return radius;
 	}
@@ -386,8 +411,9 @@ public class GenerationOptions extends JFrame {
 							g2d.setColor(Color.WHITE);
 							g2d.fillRect(0, 0, width, height);
 							g2d.setColor(Color.BLACK);
-							ArrayList<MyLine> lineArr = new ArrayList<>();
+							ArrayList<MyLine> circlesLineArr = new ArrayList<>();
 							MyLine redDotLine = null;
+							ArrayList<MyLine> redDotdsLineArr = new ArrayList<>();
 
 							for (int j = 1; j <= i; j++) {
 								g2d.setStroke(pen);
@@ -398,7 +424,7 @@ public class GenerationOptions extends JFrame {
 								g2d.drawOval(X - r, Y - r, d, d);
 //									g2d.setStroke(penForRec);
 //									g2d.drawRect(X-r-thick/2, Y-r-thick/2, d+thick, d+thick);
-								lineArr.add(new MyLine(X - r - thick / 2, Y - r - thick / 2, X + r + thick / 2,
+								circlesLineArr.add(new MyLine(X - r - thick / 2, Y - r - thick / 2, X + r + thick / 2,
 										Y + r + thick / 2));
 							}
 							if (rebDotChBox.isSelected()) {
@@ -406,14 +432,19 @@ public class GenerationOptions extends JFrame {
 								g2d.setStroke(pen2);
 								g2d.setColor(Color.red);
 //									int X = width / 2;
-								int X = rand.nextInt(lineArr.getFirst().getX(), lineArr.getFirst().getX2());
-//									int Y = height / 2;
-								int Y = rand.nextInt(lineArr.getFirst().getY(), lineArr.getFirst().getY2());
-								g2d.fillOval(X - 5, Y - 5, 10, 10);
-//									g2d.setColor(Color.green);
-								// pen2 = new BasicStroke(1);
-//									g2d.drawRect(X-3, Y-3, 6, 6);
-								redDotLine = new MyLine(X - 5, Y - 5, X + 5, Y + 5);
+								//цикл для генерации нужного кол-ва красных точек
+								for (int curDot = 0; curDot<redDotNumber; curDot++) {
+									int d = curDot*50; //для изменения промежутка генерации координат
+									int X = rand.nextInt(circlesLineArr.getFirst().getX()+d, circlesLineArr.getFirst().getX2()-d);
+	//									int Y = height / 2;
+									int Y = rand.nextInt(circlesLineArr.getFirst().getY()+d, circlesLineArr.getFirst().getY2()-d);
+									g2d.fillOval(X - 5, Y - 5, 10, 10);
+	//									g2d.setColor(Color.green);
+									// pen2 = new BasicStroke(1);
+	//									g2d.drawRect(X-3, Y-3, 6, 6);
+									redDotLine = new MyLine(X - 5, Y - 5, X + 5, Y + 5);
+									redDotdsLineArr.add(redDotLine);
+								}
 							}
 							g2d.dispose();
 //						        File outputPNGfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
@@ -426,7 +457,7 @@ public class GenerationOptions extends JFrame {
 								ImageIO.write(bufferedImage, "jpg", outputPNGfile);
 								myWriter = new FileWriter(outputCSVfile);
 								BufferedWriter myBWriter = new BufferedWriter(myWriter);
-								lineArr.forEach(line -> { // записываем параметры кругов
+								circlesLineArr.forEach(line -> { // записываем параметры кругов
 									try {
 										myBWriter.write("1 " + line.getX() + " " + line.getY() + " " + line.getX2()
 												+ " " + line.getY2());
@@ -436,9 +467,15 @@ public class GenerationOptions extends JFrame {
 									}
 								});
 								// пишем параметры красной точки
-								myBWriter.write("0 " + redDotLine.getX() + " " + redDotLine.getY() + " "
-										+ redDotLine.getX2() + " " + redDotLine.getY2());
-								myBWriter.newLine();
+								redDotdsLineArr.forEach(line->{
+									try {
+										myBWriter.write("0 " + line.getX() + " " + line.getY() + " "
+												+ line.getX2() + " " + line.getY2());
+										myBWriter.newLine();
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								});
 								myBWriter.close();// закрываем все соединения
 								myWriter.close();
 							} catch (IOException e1) {
