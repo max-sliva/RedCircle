@@ -285,6 +285,8 @@ public class GenerationOptions extends JFrame {
 			if (labelText.contains("Background")) {
 				val2Label.setText(" " + slider.getValue() + " ");
 				val1Label.setText(" " + slider.getUpperValue() + " ");
+				bgColorFrom = slider.getUpperValue();
+				bgColorTo = slider.getValue();
 				imageFrom.setBackColor(slider.getUpperValue());
 				imageTo.setBackColor(slider.getValue());
 				System.out.println("Background color imageTo = " + slider.getValue());
@@ -293,6 +295,8 @@ public class GenerationOptions extends JFrame {
 				val2Label.setText(" " + slider.getUpperValue() + " ");
 			}
 			if (labelText.contains("Circle color")) {
+				circleColorFrom = slider.getValue();
+				circleColorTo = slider.getUpperValue();
 				imageFrom.setCircleColor(slider.getValue());
 				imageTo.setCircleColor(slider.getUpperValue());
 			}
@@ -356,8 +360,9 @@ public class GenerationOptions extends JFrame {
 //				imageTo.drawRedDot(radius-30, radius-30);
 //			}
 			redrawPreviewImages();
-			filesNum = (circlesNto - circlesNfrom + 1) * ((thickTo - thickFrom) / 2 + 1)
-					* ((betweenTo - betweenFrom) / 5 + 1);
+//			for (int bgColor = bgColorFrom; bgColor <= bgColorTo; bgColor += 30)
+			filesNum = (circlesNto - circlesNfrom + 1) * ((thickTo - thickFrom) / 2 + 1)* ((betweenTo - betweenFrom) / 5 + 1)
+					*((bgColorFrom - bgColorTo)/30 + 1)*((circleColorTo - circleColorFrom)/30 + 1);
 			filesNumLabel.setText("filesNum = " + filesNum);
 		});
 		return boxWith2Sliders;
@@ -396,98 +401,104 @@ public class GenerationOptions extends JFrame {
 			@Override
 			public void run() {
 				Random rand = new Random();
-				// TODO добавить цикл для цвета фона и цвета линий
-				for (int between = betweenFrom; between <= betweenTo; between += 5) {
-					for (int thick = thickFrom; thick <= thickTo; thick += 2) {
-						for (int i = circlesNfrom; i <= circlesNto; i++) {
-//								BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB); //это было для png
-							BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB); // это сделал для jpg
-							Graphics2D g2d = bufferedImage.createGraphics();
-							g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-							pen = new BasicStroke(thick);
-							BasicStroke penForRec = new BasicStroke(1); // для отладочного вывода обрамляющего
-																		// прямоугольника
-							g2d.setStroke(pen);
-							g2d.setColor(Color.WHITE);
-							g2d.fillRect(0, 0, width, height);
-							g2d.setColor(Color.BLACK);
-							ArrayList<MyLine> circlesLineArr = new ArrayList<>();
-							MyLine redDotLine = null;
-							ArrayList<MyLine> redDotdsLineArr = new ArrayList<>();
-
-							for (int j = 1; j <= i; j++) {
-								g2d.setStroke(pen);
-								int r = radius - between * j;
-								int d = r * 2;
-								int X = width / 2;
-								int Y = height / 2;
-								g2d.drawOval(X - r, Y - r, d, d);
-//									g2d.setStroke(penForRec);
-//									g2d.drawRect(X-r-thick/2, Y-r-thick/2, d+thick, d+thick);
-								circlesLineArr.add(new MyLine(X - r - thick / 2, Y - r - thick / 2, X + r + thick / 2,
-										Y + r + thick / 2));
-							}
-							if (rebDotChBox.isSelected()) {
-								BasicStroke pen2 = new BasicStroke(1);
-								g2d.setStroke(pen2);
-								g2d.setColor(Color.red);
-//									int X = width / 2;
-								//цикл для генерации нужного кол-ва красных точек
-								for (int curDot = 0; curDot<redDotNumber; curDot++) {
-									int d = curDot*50; //для изменения промежутка генерации координат
-									int X = rand.nextInt(circlesLineArr.getFirst().getX()+d, circlesLineArr.getFirst().getX2()-d);
-	//									int Y = height / 2;
-									int Y = rand.nextInt(circlesLineArr.getFirst().getY()+d, circlesLineArr.getFirst().getY2()-d);
-									g2d.fillOval(X - 5, Y - 5, 10, 10);
-	//									g2d.setColor(Color.green);
-									// pen2 = new BasicStroke(1);
-	//									g2d.drawRect(X-3, Y-3, 6, 6);
-									redDotLine = new MyLine(X - 5, Y - 5, X + 5, Y + 5);
-									redDotdsLineArr.add(redDotLine);
+				System.out.println("bgColorFrom = "+bgColorFrom);
+				for (int circleColor = circleColorFrom; circleColor <= circleColorTo; circleColor += 30)
+					for (int bgColor = bgColorFrom; bgColor >= bgColorTo; bgColor -= 30)
+						for (int between = betweenFrom; between <= betweenTo; between += 5) {
+							for (int thick = thickFrom; thick <= thickTo; thick += 2) {
+								for (int i = circlesNfrom; i <= circlesNto; i++) {
+		//								BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB); //это было для png
+									BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB); // это сделал для jpg
+									Graphics2D g2d = bufferedImage.createGraphics();
+									g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+									pen = new BasicStroke(thick);
+									BasicStroke penForRec = new BasicStroke(1); // для отладочного вывода обрамляющего
+																				// прямоугольника
+									g2d.setStroke(pen);
+	//								g2d.setColor(Color.WHITE);
+									System.out.println("bgColor = "+bgColor);
+									g2d.setColor(new Color(bgColor, bgColor, bgColor));
+									g2d.setBackground(new Color(bgColor, bgColor, bgColor));
+									g2d.fillRect(0, 0, width, height);
+	//								g2d.setColor(Color.BLACK);
+									g2d.setColor(new Color(circleColor,circleColor,circleColor));
+									ArrayList<MyLine> circlesLineArr = new ArrayList<>();
+									MyLine redDotLine = null;
+									ArrayList<MyLine> redDotdsLineArr = new ArrayList<>();
+		
+									for (int j = 1; j <= i; j++) {
+										g2d.setStroke(pen);
+										int r = radius - between * j;
+										int d = r * 2;
+										int X = width / 2;
+										int Y = height / 2;
+										g2d.drawOval(X - r, Y - r, d, d);
+		//									g2d.setStroke(penForRec);
+		//									g2d.drawRect(X-r-thick/2, Y-r-thick/2, d+thick, d+thick);
+										circlesLineArr.add(new MyLine(X - r - thick / 2, Y - r - thick / 2, X + r + thick / 2,
+												Y + r + thick / 2));
+									}
+									if (rebDotChBox.isSelected()) {
+										BasicStroke pen2 = new BasicStroke(1);
+										g2d.setStroke(pen2);
+										g2d.setColor(Color.red);
+		//									int X = width / 2;
+										//цикл для генерации нужного кол-ва красных точек
+										for (int curDot = 0; curDot<redDotNumber; curDot++) {
+											int d = curDot*50; //для изменения промежутка генерации координат
+											int X = rand.nextInt(circlesLineArr.getFirst().getX()+d, circlesLineArr.getFirst().getX2()-d);
+			//									int Y = height / 2;
+											int Y = rand.nextInt(circlesLineArr.getFirst().getY()+d, circlesLineArr.getFirst().getY2()-d);
+											g2d.fillOval(X - 5, Y - 5, 10, 10);
+			//									g2d.setColor(Color.green);
+											// pen2 = new BasicStroke(1);
+			//									g2d.drawRect(X-3, Y-3, 6, 6);
+											redDotLine = new MyLine(X - 5, Y - 5, X + 5, Y + 5);
+											redDotdsLineArr.add(redDotLine);
+										}
+									}
+									g2d.dispose();
+		//						        File outputPNGfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
+									File outputPNGfile = new File(
+											dirPath + "\\" + "out_n" + i +"cC"+ circleColor+"bC"+ bgColor+ "th" + thick + "btw" + between + ".jpg");
+									File outputCSVfile = new File(
+											dirPath + "\\" + "out_n" + i+"cC"+ circleColor+"bC"+ bgColor + "th" + thick + "btw" + between + ".txt");
+									FileWriter myWriter = null;
+									try {
+										ImageIO.write(bufferedImage, "jpg", outputPNGfile);
+										myWriter = new FileWriter(outputCSVfile);
+										BufferedWriter myBWriter = new BufferedWriter(myWriter);
+										circlesLineArr.forEach(line -> { // записываем параметры кругов
+											try {
+												myBWriter.write("1 " + line.getX() + " " + line.getY() + " " + line.getX2()
+														+ " " + line.getY2());
+												myBWriter.newLine();
+											} catch (IOException e) {
+												e.printStackTrace();
+											}
+										});
+										// пишем параметры красной точки
+										redDotdsLineArr.forEach(line->{
+											try {
+												myBWriter.write("0 " + line.getX() + " " + line.getY() + " "
+														+ line.getX2() + " " + line.getY2());
+												myBWriter.newLine();
+											} catch (IOException e) {
+												e.printStackTrace();
+											}
+										});
+										myBWriter.close();// закрываем все соединения
+										myWriter.close();
+									} catch (IOException e1) {
+										e1.printStackTrace();
+									}
+		
+									progressI++;
+									progressLabel.setText("progressI = " + progressI);
+		//								System.out.println("progressI = "+progressI);
 								}
 							}
-							g2d.dispose();
-//						        File outputPNGfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
-							File outputPNGfile = new File(
-									dirPath + "\\" + "out_n" + i + "th" + thick + "btw" + between + ".jpg");
-							File outputCSVfile = new File(
-									dirPath + "\\" + "out_n" + i + "th" + thick + "btw" + between + ".txt");
-							FileWriter myWriter = null;
-							try {
-								ImageIO.write(bufferedImage, "jpg", outputPNGfile);
-								myWriter = new FileWriter(outputCSVfile);
-								BufferedWriter myBWriter = new BufferedWriter(myWriter);
-								circlesLineArr.forEach(line -> { // записываем параметры кругов
-									try {
-										myBWriter.write("1 " + line.getX() + " " + line.getY() + " " + line.getX2()
-												+ " " + line.getY2());
-										myBWriter.newLine();
-									} catch (IOException e) {
-										e.printStackTrace();
-									}
-								});
-								// пишем параметры красной точки
-								redDotdsLineArr.forEach(line->{
-									try {
-										myBWriter.write("0 " + line.getX() + " " + line.getY() + " "
-												+ line.getX2() + " " + line.getY2());
-										myBWriter.newLine();
-									} catch (IOException e) {
-										e.printStackTrace();
-									}
-								});
-								myBWriter.close();// закрываем все соединения
-								myWriter.close();
-							} catch (IOException e1) {
-								e1.printStackTrace();
-							}
-
-							progressI++;
-							progressLabel.setText("progressI = " + progressI);
-//								System.out.println("progressI = "+progressI);
 						}
-					}
-				}
 				setEnabled(true);
 				File directory = new File(dirPath);
 				try {

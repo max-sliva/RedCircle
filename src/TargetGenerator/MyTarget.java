@@ -110,21 +110,21 @@ public class MyTarget extends JPanel {
 //		gr2D.drawRect(0, 0, this.getWidth(), this.getHeight());
 		curWidth = getSize().width;
 		curHeight = getSize().height;
-		System.out.println(targetName+" size = " + getCurrentWidth() +" x "+ getCurrentHeight() +" ");
+//		System.out.println(targetName+" size = " + getCurrentWidth() +" x "+ getCurrentHeight() +" ");
 		gr2D.clearRect(0, 0, getSize().width, getSize().height);
 		gr2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		if (drawCircles ) {
 			pen = new BasicStroke(thickness);
 			gr2D.setStroke(pen);
 			gr2D.setColor(circleColor);
-			System.out.println("circles size = "+circlesForTarget.size());
+//			System.out.println("circles size = "+circlesForTarget.size());
 			for (Circle circle : circlesForTarget) {
 				gr2D.setStroke(new BasicStroke(circle.getThickness()));
 				int d = (int) (circle.getRadius()*2*dHeight);
 				int R = (int) (circle.getRadius()*dHeight);
 				int X = (int) (circle.getX()*dHeight);
 				int Y = (int) (circle.getY()*dHeight);
-				System.out.println("x = " + X + " y = " + Y + " r = " + R);
+//				System.out.println("x = " + X + " y = " + Y + " r = " + R);
 				if (circle.getIsClicked()) gr2D.setColor(Color.yellow);
 				else gr2D.setColor(circleColor);
 				gr2D.drawOval(X-R, Y-R, d, d);				
