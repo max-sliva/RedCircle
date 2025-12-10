@@ -32,6 +32,7 @@ public class MyTarget extends JPanel {
 	Color circleColor = Color.BLACK;	
 	int circleRadius = 10;
 	int thickness = 10;
+	int redDotColor = 255;
 	private MyPoint redPoint;
 	private int curWidth = 0;
 	private int curHeight = 0;
@@ -58,9 +59,10 @@ public class MyTarget extends JPanel {
 		repaint();
 	}
 	
-	public void drawNRedDots(int n, int x, int y) {
+	public void drawNRedDots(int n, int x, int y, int redDotColor) {
 		drawNDots = true;
 		nDots = n;
+		this.redDotColor = redDotColor;
 		repaint();
 	}
 	
@@ -140,7 +142,24 @@ public class MyTarget extends JPanel {
 			Random rand = new Random();
 			pen = new BasicStroke(2);
 			gr2D.setStroke(pen);
-			gr2D.setColor(Color.red);
+//			gr2D.setColor(Color.red);
+			int red, gr, b;
+	        if (redDotColor <= 127) { //для преобразования красного от темного до светлого, в середине - яркий красный 
+	            // Phase 1: 0 → 127: dark red (128,0,0) → bright red (255,0,0)
+	            // Red increases from 128 to 255 over 128 steps (0 to 127 inclusive)
+	            double ratio = redDotColor / 127.0;
+	            red = 128 + (int) ((255 - 128) * ratio); // 128 → 255
+	            gr = 0;
+	            b = 0;
+	        } else {
+	            // Phase 2: 128 → 255: bright red (255,0,0) → light red (255,220,220)
+	            // Green & blue rise from 0 → 220 over 128 steps (128 to 255 inclusive = 128 values)
+	            double ratio = (redDotColor - 128) / 127.0; // normalize to [0,1]
+	            red = 255;
+	            gr = (int) (230 * ratio); // 0 → 220
+	            b = (int) (230 * ratio); // 0 → 220
+	        }
+			gr2D.setColor(new Color(red,gr,b));
 			int r = circlesForTarget.getFirst().getRadius();
 			int x1 = circlesForTarget.getFirst().getX(); 
 			int y1 = circlesForTarget.getFirst().getY(); 

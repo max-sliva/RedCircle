@@ -59,6 +59,8 @@ public class GenerationOptions extends JFrame {
 	int filesNum = (circlesNto - circlesNfrom + 1) * ((thickTo - thickFrom + 1) / 2)
 			* ((betweenTo - betweenFrom + 1) / 5);
 	int redDotNumber = 5;
+	int redDotColorFrom = 155;
+	int redDotColorTo = 255;
 	JLabel filesNumLabel = new JLabel("filesNum = " + filesNum);
 	int progressI = 0;
 	JLabel progressLabel = new JLabel("progressI = " + progressI);
@@ -72,8 +74,19 @@ public class GenerationOptions extends JFrame {
 		Box circlesSpaceBox = create2ValueSliderBox("Circles between: ", 10, 100, betweenFrom, betweenTo);
 		Box bgColorBox = create2ValueSliderBox("Background color: ", 0, 255, 255, 155);
 		Box circleColorBox = create2ValueSliderBox("Circle color: ", 0, 255, 0, 155);
+		Box redDotColorBox = create2ValueSliderBox("red dot color: ", 0, 255, redDotColorFrom, redDotColorTo);
 
 		imageTo.setBackColor(bgColorTo);
+		JButton saveSettings = new JButton("save settings");
+		saveSettings.addActionListener(e->{
+			//TODO добавить сохранение параметров генерации
+			System.out.println("Saving current params");
+		});
+		JButton loadSettings = new JButton("load settings");
+		loadSettings.addActionListener(e->{
+			//TODO добавить загрузку параметров генерации
+			System.out.println("loading params");
+		});
 		JButton genBtn = new JButton("Generate targets");
 		genBtn.addActionListener(e -> {
 			JFileChooser chooser;
@@ -87,7 +100,8 @@ public class GenerationOptions extends JFrame {
 			if (returnValue == JFileChooser.APPROVE_OPTION) {
 				String dirPath = chooser.getSelectedFile().getAbsolutePath();
 				System.out.println("Selected Directory: " + dirPath);
-				generateTargetImages(1400, 1000, dirPath);
+//				generateTargetImages(1400, 1000, dirPath);
+				generateTargetImages(640, 640, dirPath);
 				System.out.println("---!!targets created!!---");
 			} else {
 				System.out.println("No Selection");
@@ -159,6 +173,10 @@ public class GenerationOptions extends JFrame {
 		genBtnBox.add(Box.createHorizontalGlue());
 		genBtnBox.add(filesNumLabel);
 		genBtnBox.add(Box.createHorizontalGlue());
+		genBtnBox.add(saveSettings);
+		genBtnBox.add(Box.createHorizontalGlue());
+		genBtnBox.add(loadSettings);
+		genBtnBox.add(Box.createHorizontalGlue());
 		genBtnBox.add(genBtn);
 		Box northBox = new Box(BoxLayout.Y_AXIS);
 		northBox.add(circlesCountBox);
@@ -166,6 +184,7 @@ public class GenerationOptions extends JFrame {
 		northBox.add(circlesSpaceBox);
 		northBox.add(bgColorBox);
 		northBox.add(circleColorBox);
+		northBox.add(redDotColorBox);
 		northBox.add(genBtnBox);
 
 //		Box imagesPreviewBox = new Box(BoxLayout.X_AXIS);
@@ -236,8 +255,8 @@ public class GenerationOptions extends JFrame {
 		if (rebDotChBox.isSelected()) {
 //			imageFrom.drawRedDot(radius - 30, radius - 30);
 //			imageTo.drawRedDot(radius - 30, radius - 30);
-			imageFrom.drawNRedDots(redDotNumber, radius - 30, radius - 30);
-			imageTo.drawNRedDots(redDotNumber, radius - 30, radius - 30);
+			imageFrom.drawNRedDots(redDotNumber, radius - 30, radius - 30, redDotColorFrom);
+			imageTo.drawNRedDots(redDotNumber, radius - 30, radius - 30, redDotColorTo);
 		} else {
 			imageFrom.setDrawDot(false);
 			imageTo.setDrawDot(false);
@@ -293,6 +312,12 @@ public class GenerationOptions extends JFrame {
 			} else {
 				val1Label.setText(" " + slider.getValue() + " ");
 				val2Label.setText(" " + slider.getUpperValue() + " ");
+			}
+			if (labelText.contains("red")) {
+				redDotColorFrom = slider.getValue();
+				redDotColorTo = slider.getUpperValue();
+				System.out.println("red dot from = "+redDotColorFrom);
+				System.out.println("red dot to = "+redDotColorTo);
 			}
 			if (labelText.contains("Circle color")) {
 				circleColorFrom = slider.getValue();
@@ -362,7 +387,7 @@ public class GenerationOptions extends JFrame {
 			redrawPreviewImages();
 //			for (int bgColor = bgColorFrom; bgColor <= bgColorTo; bgColor += 30)
 			filesNum = (circlesNto - circlesNfrom + 1) * ((thickTo - thickFrom) / 2 + 1)* ((betweenTo - betweenFrom) / 5 + 1)
-					*((bgColorFrom - bgColorTo)/30 + 1)*((circleColorTo - circleColorFrom)/30 + 1);
+					*((bgColorFrom - bgColorTo)/30 + 1)*((circleColorTo - circleColorFrom)/30 + 1)*((redDotColorTo - redDotColorFrom)/25 + 1);
 			filesNumLabel.setText("filesNum = " + filesNum);
 		});
 		return boxWith2Sliders;
@@ -402,6 +427,8 @@ public class GenerationOptions extends JFrame {
 			public void run() {
 				Random rand = new Random();
 				System.out.println("bgColorFrom = "+bgColorFrom);
+				if (!rebDotChBox.isSelected()) redDotColorTo = redDotColorFrom;
+			  for (int redColor = redDotColorFrom; redColor <=redDotColorTo; redColor += 25)
 				for (int circleColor = circleColorFrom; circleColor <= circleColorTo; circleColor += 30)
 					for (int bgColor = bgColorFrom; bgColor >= bgColorTo; bgColor -= 30)
 						for (int between = betweenFrom; between <= betweenTo; between += 5) {
@@ -441,7 +468,24 @@ public class GenerationOptions extends JFrame {
 									if (rebDotChBox.isSelected()) {
 										BasicStroke pen2 = new BasicStroke(1);
 										g2d.setStroke(pen2);
-										g2d.setColor(Color.red);
+										int red, gr, b;
+								        if (redColor<= 127) { //для преобразования красного от темного до светлого, в середине - яркий красный 
+								            // Phase 1: 0 → 127: dark red (128,0,0) → bright red (255,0,0)
+								            // Red increases from 128 to 255 over 128 steps (0 to 127 inclusive)
+								            double ratio = redColor / 127.0;
+								            red = 128 + (int) ((255 - 128) * ratio); // 128 → 255
+								            gr = 0;
+								            b = 0;
+								        } else {
+								            // Phase 2: 128 → 255: bright red (255,0,0) → light red (255,220,220)
+								            // Green & blue rise from 0 → 220 over 128 steps (128 to 255 inclusive = 128 values)
+								            double ratio = (redColor - 128) / 127.0; // normalize to [0,1]
+								            red = 255;
+								            gr = (int) (230 * ratio); // 0 → 220
+								            b = (int) (230 * ratio); // 0 → 220
+								        }
+										g2d.setColor(new Color(red,gr,b));
+//										g2d.setColor(Color.red);
 		//									int X = width / 2;
 										//цикл для генерации нужного кол-ва красных точек
 										for (int curDot = 0; curDot<redDotNumber; curDot++) {
@@ -460,9 +504,9 @@ public class GenerationOptions extends JFrame {
 									g2d.dispose();
 		//						        File outputPNGfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
 									File outputPNGfile = new File(
-											dirPath + "\\" + "out_n" + i +"cC"+ circleColor+"bC"+ bgColor+ "th" + thick + "btw" + between + ".jpg");
+											dirPath + "\\" + "out_n" + i +"cC"+ circleColor+"bC"+ bgColor+ "th" + thick + "btw" + between +"rDC"+redColor +".jpg");
 									File outputCSVfile = new File(
-											dirPath + "\\" + "out_n" + i+"cC"+ circleColor+"bC"+ bgColor + "th" + thick + "btw" + between + ".txt");
+											dirPath + "\\" + "out_n" + i+"cC"+ circleColor+"bC"+ bgColor + "th" + thick + "btw" + between +"rDC"+redColor +".txt");
 									FileWriter myWriter = null;
 									try {
 										ImageIO.write(bufferedImage, "jpg", outputPNGfile);
