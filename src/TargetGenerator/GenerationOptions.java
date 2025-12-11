@@ -61,6 +61,9 @@ public class GenerationOptions extends JFrame {
 	int redDotNumber = 5;
 	int redDotColorFrom = 155;
 	int redDotColorTo = 255;
+	//TODO сделать изменение размера красной точки
+	int redDotSizeFrom = 5;
+	int redDotSizeTo = 20;
 	JLabel filesNumLabel = new JLabel("filesNum = " + filesNum);
 	int progressI = 0;
 	JLabel progressLabel = new JLabel("progressI = " + progressI);
