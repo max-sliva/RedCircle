@@ -33,6 +33,7 @@ public class MyTarget extends JPanel {
 	int circleRadius = 10;
 	int thickness = 10;
 	int redDotColor = 255;
+	int redDotSize = 10;
 	private MyPoint redPoint;
 	private int curWidth = 0;
 	private int curHeight = 0;
@@ -59,10 +60,11 @@ public class MyTarget extends JPanel {
 		repaint();
 	}
 	
-	public void drawNRedDots(int n, int x, int y, int redDotColor) {
+	public void drawNRedDots(int n, int x, int y, int redDotColor, int redDotSize) {
 		drawNDots = true;
 		nDots = n;
 		this.redDotColor = redDotColor;
+		this.redDotSize = redDotSize;
 		repaint();
 	}
 	
@@ -167,7 +169,7 @@ public class MyTarget extends JPanel {
 				int d = r-30*curDot; //для изменения промежутка генерации координат
 				int X = rand.nextInt(x1-d, x1+d);
 				int Y = rand.nextInt(y1-d, y1+d);
-				gr2D.fillOval(X - 5, Y - 5, 10, 10);
+				gr2D.fillOval(X - 5, Y - 5, redDotSize, redDotSize);
 			}
 			drawNDots = false;
 //			gr2D.fillOval(redPoint.getX()-3, redPoint.getY()-3, 6, 6);

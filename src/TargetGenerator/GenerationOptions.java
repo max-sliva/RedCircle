@@ -14,8 +14,14 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.security.interfaces.RSAKey;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -34,6 +40,32 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import TargetRecognize.Circle;
+class SliderValues implements Serializable{
+	private static final long serialVersionUID = 1L;
+	private int downValue;
+	private int upperValue;
+	public SliderValues(int downValue, int upperValue) {
+		super();
+		this.downValue = downValue;
+		this.upperValue = upperValue;
+	}
+	public int getDownValue() {
+		return downValue;
+	}
+	public void setDownValue(int downValue) {
+		this.downValue = downValue;
+	}
+	public int getUpperValue() {
+		return upperValue;
+	}
+	public void setUpperValue(int upperValue) {
+		this.upperValue = upperValue;
+	}
+	@Override
+	public String toString() {
+		return "SliderValues [downValue=" + downValue + ", upperValue=" + upperValue + "]";
+	}
+}
 
 public class GenerationOptions extends JFrame {
 
@@ -61,7 +93,6 @@ public class GenerationOptions extends JFrame {
 	int redDotNumber = 5;
 	int redDotColorFrom = 155;
 	int redDotColorTo = 255;
-	//TODO сделать изменение размера красной точки
 	int redDotSizeFrom = 5;
 	int redDotSizeTo = 20;
 	JLabel filesNumLabel = new JLabel("filesNum = " + filesNum);
@@ -78,17 +109,27 @@ public class GenerationOptions extends JFrame {
 		Box bgColorBox = create2ValueSliderBox("Background color: ", 0, 255, 255, 155);
 		Box circleColorBox = create2ValueSliderBox("Circle color: ", 0, 255, 0, 155);
 		Box redDotColorBox = create2ValueSliderBox("red dot color: ", 0, 255, redDotColorFrom, redDotColorTo);
-
+		Box redDotSizeBox = create2ValueSliderBox("red dot size: ", 5, 20, redDotSizeFrom, redDotSizeTo);
+		var sliderBoxes = new ArrayList<Box>(); //массив для хранения всех боксов со слайдерами
+		sliderBoxes.add(circlesCountBox);
+		sliderBoxes.add(circlesThickBox);
+		sliderBoxes.add(circlesSpaceBox);
+		sliderBoxes.add(bgColorBox);
+		sliderBoxes.add(circleColorBox);
+		sliderBoxes.add(redDotColorBox);
+		sliderBoxes.add(redDotSizeBox);
+		
 		imageTo.setBackColor(bgColorTo);
 		JButton saveSettings = new JButton("save settings");
 		saveSettings.addActionListener(e->{
-			//TODO добавить сохранение параметров генерации
 			System.out.println("Saving current params");
+			saveSlidersValues(sliderBoxes);
 		});
+		
 		JButton loadSettings = new JButton("load settings");
 		loadSettings.addActionListener(e->{
-			//TODO добавить загрузку параметров генерации
 			System.out.println("loading params");
+			setSlidersValues(sliderBoxes);
 		});
 		JButton genBtn = new JButton("Generate targets");
 		genBtn.addActionListener(e -> {
@@ -181,13 +222,9 @@ public class GenerationOptions extends JFrame {
 		genBtnBox.add(loadSettings);
 		genBtnBox.add(Box.createHorizontalGlue());
 		genBtnBox.add(genBtn);
+		
 		Box northBox = new Box(BoxLayout.Y_AXIS);
-		northBox.add(circlesCountBox);
-		northBox.add(circlesThickBox);
-		northBox.add(circlesSpaceBox);
-		northBox.add(bgColorBox);
-		northBox.add(circleColorBox);
-		northBox.add(redDotColorBox);
+		sliderBoxes.forEach(box-> northBox.add(box));
 		northBox.add(genBtnBox);
 
 //		Box imagesPreviewBox = new Box(BoxLayout.X_AXIS);
@@ -224,6 +261,7 @@ public class GenerationOptions extends JFrame {
 		circlesTo.add(new Circle(w / 2, h / 2, radius));
 //		imageTo.drawTarget(circlesTo);
 		redrawPreviewImages();
+		setSlidersValues(sliderBoxes);
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -233,6 +271,63 @@ public class GenerationOptions extends JFrame {
 				redrawPreviewImages();
 			}
 		});
+	}
+
+	private void saveSlidersValues(ArrayList<Box> sliderBoxes) {
+		var sliderValues = new ArrayList<SliderValues>();
+		sliderBoxes.forEach(box ->{
+			int compCount = box.getComponentCount();
+			var tempSlider = (RangeSliderOld) box.getComponent(compCount-1);
+			sliderValues.add(new SliderValues(tempSlider.getValue(), tempSlider.getUpperValue()));
+		});
+		int k = 0;
+		sliderValues.forEach(value->{
+			System.out.println("#"+(sliderValues.indexOf(value))+": "+value.getDownValue()+"; "+value.getUpperValue());
+		});
+		//TODO добавить выбор файла из диалога 
+		File myFile = new File("settings.dat");
+		FileOutputStream f;
+		try {
+			f = new FileOutputStream(myFile);
+			ObjectOutputStream o = new ObjectOutputStream(f);
+			o.writeObject(sliderValues);
+			o.close();
+			f.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void setSlidersValues(ArrayList<Box> sliderBoxes) { //для установки значений слайдеров
+//		int compCount = slidersBox.getComponentCount();
+//		System.out.println("in slider box elements count = "+ compCount);
+//		var tempSlider = (RangeSliderOld) slidersBox.getComponent(compCount-1);
+//		tempSlider.setValue(valueFrom);
+//		tempSlider.setUpperValue(valueTo);
+		//TODO добавить выбор файла из диалога 
+		File myFile = new File("settings.dat");
+		ArrayList<SliderValues> sliderValues ;
+		try {
+			FileInputStream fin = new FileInputStream(myFile);
+			ObjectInputStream oin = new ObjectInputStream(fin);
+			sliderValues = (ArrayList<SliderValues>) oin.readObject();
+			sliderValues.forEach(value->{
+				System.out.println(value);
+				int k = sliderValues.indexOf(value);
+				var tempBox = sliderBoxes.get(k);
+				int compCount = tempBox.getComponentCount();
+				var tempSlider = (RangeSliderOld) tempBox.getComponent(compCount-1);
+				tempSlider.setValue(value.getDownValue());
+				tempSlider.setUpperValue(value.getUpperValue());
+			});
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+//		sliderBoxes.forEach(box->{
+//			int compCount = box.getComponentCount();
+//			var tempSlider = (RangeSliderOld) box.getComponent(compCount-1);
+//			tempSlider.setValue(sliderValues.get(sliderBoxes.indexOf(box)).getDownValue());
+//		});
 	}
 
 	public void showPreviewBox() {
@@ -253,13 +348,16 @@ public class GenerationOptions extends JFrame {
 	private void redrawPreviewImages() {
 		int w = imageTo.getCurrentWidth();
 		int h = imageTo.getCurrentHeight();
-		int radius = (w < h) ? (w / 2) : (h / 2);
-		radius = (radius == 0) ? radius : radius - 10 - thickTo;
+//		int radius = (w < h) ? (w / 2) : (h / 2);
+//		radius = (radius == 0) ? radius : radius - 10 - thickTo;
+//		int radius = redDotSizeFrom;
 		if (rebDotChBox.isSelected()) {
 //			imageFrom.drawRedDot(radius - 30, radius - 30);
 //			imageTo.drawRedDot(radius - 30, radius - 30);
-			imageFrom.drawNRedDots(redDotNumber, radius - 30, radius - 30, redDotColorFrom);
-			imageTo.drawNRedDots(redDotNumber, radius - 30, radius - 30, redDotColorTo);
+//			imageFrom.drawNRedDots(redDotNumber, radius - 30, radius - 30, redDotColorFrom);
+//			imageTo.drawNRedDots(redDotNumber, radius - 30, radius - 30, redDotColorTo);
+			imageFrom.drawNRedDots(redDotNumber, redDotSizeFrom/2 - 30, redDotSizeFrom/2 - 30, redDotColorFrom, redDotSizeFrom);
+			imageTo.drawNRedDots(redDotNumber, redDotSizeTo/2 - 30, redDotSizeTo/2 - 30, redDotColorTo, redDotSizeTo);
 		} else {
 			imageFrom.setDrawDot(false);
 			imageTo.setDrawDot(false);
@@ -316,11 +414,17 @@ public class GenerationOptions extends JFrame {
 				val1Label.setText(" " + slider.getValue() + " ");
 				val2Label.setText(" " + slider.getUpperValue() + " ");
 			}
-			if (labelText.contains("red")) {
+			if (labelText.contains("dot color")) {
 				redDotColorFrom = slider.getValue();
 				redDotColorTo = slider.getUpperValue();
-				System.out.println("red dot from = "+redDotColorFrom);
-				System.out.println("red dot to = "+redDotColorTo);
+//				System.out.println("red dot from = "+redDotColorFrom);
+//				System.out.println("red dot to = "+redDotColorTo);
+			}
+			if (labelText.contains("dot size")) {
+				redDotSizeFrom = slider.getValue();
+				redDotSizeTo = slider.getUpperValue();
+				System.out.println("red dot from = "+redDotSizeFrom);
+				System.out.println("red dot to = "+redDotSizeTo);
 			}
 			if (labelText.contains("Circle color")) {
 				circleColorFrom = slider.getValue();
@@ -390,7 +494,8 @@ public class GenerationOptions extends JFrame {
 			redrawPreviewImages();
 //			for (int bgColor = bgColorFrom; bgColor <= bgColorTo; bgColor += 30)
 			filesNum = (circlesNto - circlesNfrom + 1) * ((thickTo - thickFrom) / 2 + 1)* ((betweenTo - betweenFrom) / 5 + 1)
-					*((bgColorFrom - bgColorTo)/30 + 1)*((circleColorTo - circleColorFrom)/30 + 1)*((redDotColorTo - redDotColorFrom)/25 + 1);
+					*((bgColorFrom - bgColorTo)/30 + 1)*((circleColorTo - circleColorFrom)/30 + 1)
+					*((redDotColorTo - redDotColorFrom)/25 + 1)*((redDotSizeTo - redDotSizeFrom)/2+1);
 			filesNumLabel.setText("filesNum = " + filesNum);
 		});
 		return boxWith2Sliders;
@@ -415,7 +520,8 @@ public class GenerationOptions extends JFrame {
 		int width = w;
 		int height = h;
 //        int between = betweenFrom;
-		int radius = (width > height) ? (height - 40) / 2 : (width - 40) / 2;
+//		int radius = (width > height) ? (height - 40) / 2 : (width - 40) / 2;
+		int radius = (width > height) ? (height - thickTo-10) / 2 : (width - thickTo-10) / 2;
 //		BasicStroke pen;
 		progressI = 0;
 //		JDialog progressDialog = new JDialog(this);
@@ -431,121 +537,123 @@ public class GenerationOptions extends JFrame {
 				Random rand = new Random();
 				System.out.println("bgColorFrom = "+bgColorFrom);
 				if (!rebDotChBox.isSelected()) redDotColorTo = redDotColorFrom;
-			  for (int redColor = redDotColorFrom; redColor <=redDotColorTo; redColor += 25)
-				for (int circleColor = circleColorFrom; circleColor <= circleColorTo; circleColor += 30)
-					for (int bgColor = bgColorFrom; bgColor >= bgColorTo; bgColor -= 30)
-						for (int between = betweenFrom; between <= betweenTo; between += 5) {
-							for (int thick = thickFrom; thick <= thickTo; thick += 2) {
-								for (int i = circlesNfrom; i <= circlesNto; i++) {
-		//								BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB); //это было для png
-									BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB); // это сделал для jpg
-									Graphics2D g2d = bufferedImage.createGraphics();
-									g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-									pen = new BasicStroke(thick);
-									BasicStroke penForRec = new BasicStroke(1); // для отладочного вывода обрамляющего
-																				// прямоугольника
-									g2d.setStroke(pen);
-	//								g2d.setColor(Color.WHITE);
-									System.out.println("bgColor = "+bgColor);
-									g2d.setColor(new Color(bgColor, bgColor, bgColor));
-									g2d.setBackground(new Color(bgColor, bgColor, bgColor));
-									g2d.fillRect(0, 0, width, height);
-	//								g2d.setColor(Color.BLACK);
-									g2d.setColor(new Color(circleColor,circleColor,circleColor));
-									ArrayList<MyLine> circlesLineArr = new ArrayList<>();
-									MyLine redDotLine = null;
-									ArrayList<MyLine> redDotdsLineArr = new ArrayList<>();
-		
-									for (int j = 1; j <= i; j++) {
+				for (int redSize = redDotSizeFrom; redSize <= redDotSizeTo; redSize+=2)
+				  for (int redColor = redDotColorFrom; redColor <=redDotColorTo; redColor += 25)
+					for (int circleColor = circleColorFrom; circleColor <= circleColorTo; circleColor += 30)
+						for (int bgColor = bgColorFrom; bgColor >= bgColorTo; bgColor -= 30)
+							for (int between = betweenFrom; between <= betweenTo; between += 5) {
+								for (int thick = thickFrom; thick <= thickTo; thick += 2) {
+									for (int i = circlesNfrom; i <= circlesNto; i++) {
+			//								BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB); //это было для png
+										BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB); // это сделал для jpg
+										Graphics2D g2d = bufferedImage.createGraphics();
+										g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+										pen = new BasicStroke(thick);
+										BasicStroke penForRec = new BasicStroke(1); // для отладочного вывода обрамляющего
+																					// прямоугольника
 										g2d.setStroke(pen);
-										int r = radius - between * j;
-										int d = r * 2;
-										int X = width / 2;
-										int Y = height / 2;
-										g2d.drawOval(X - r, Y - r, d, d);
-		//									g2d.setStroke(penForRec);
-		//									g2d.drawRect(X-r-thick/2, Y-r-thick/2, d+thick, d+thick);
-										circlesLineArr.add(new MyLine(X - r - thick / 2, Y - r - thick / 2, X + r + thick / 2,
-												Y + r + thick / 2));
-									}
-									if (rebDotChBox.isSelected()) {
-										BasicStroke pen2 = new BasicStroke(1);
-										g2d.setStroke(pen2);
-										int red, gr, b;
-								        if (redColor<= 127) { //для преобразования красного от темного до светлого, в середине - яркий красный 
-								            // Phase 1: 0 → 127: dark red (128,0,0) → bright red (255,0,0)
-								            // Red increases from 128 to 255 over 128 steps (0 to 127 inclusive)
-								            double ratio = redColor / 127.0;
-								            red = 128 + (int) ((255 - 128) * ratio); // 128 → 255
-								            gr = 0;
-								            b = 0;
-								        } else {
-								            // Phase 2: 128 → 255: bright red (255,0,0) → light red (255,220,220)
-								            // Green & blue rise from 0 → 220 over 128 steps (128 to 255 inclusive = 128 values)
-								            double ratio = (redColor - 128) / 127.0; // normalize to [0,1]
-								            red = 255;
-								            gr = (int) (230 * ratio); // 0 → 220
-								            b = (int) (230 * ratio); // 0 → 220
-								        }
-										g2d.setColor(new Color(red,gr,b));
-//										g2d.setColor(Color.red);
-		//									int X = width / 2;
-										//цикл для генерации нужного кол-ва красных точек
-										for (int curDot = 0; curDot<redDotNumber; curDot++) {
-											int d = curDot*50; //для изменения промежутка генерации координат
-											int X = rand.nextInt(circlesLineArr.getFirst().getX()+d, circlesLineArr.getFirst().getX2()-d);
-			//									int Y = height / 2;
-											int Y = rand.nextInt(circlesLineArr.getFirst().getY()+d, circlesLineArr.getFirst().getY2()-d);
-											g2d.fillOval(X - 5, Y - 5, 10, 10);
-			//									g2d.setColor(Color.green);
-											// pen2 = new BasicStroke(1);
-			//									g2d.drawRect(X-3, Y-3, 6, 6);
-											redDotLine = new MyLine(X - 5, Y - 5, X + 5, Y + 5);
-											redDotdsLineArr.add(redDotLine);
+		//								g2d.setColor(Color.WHITE);
+										System.out.println("bgColor = "+bgColor);
+										g2d.setColor(new Color(bgColor, bgColor, bgColor));
+										g2d.setBackground(new Color(bgColor, bgColor, bgColor));
+										g2d.fillRect(0, 0, width, height);
+		//								g2d.setColor(Color.BLACK);
+										g2d.setColor(new Color(circleColor,circleColor,circleColor));
+										ArrayList<MyLine> circlesLineArr = new ArrayList<>();
+										MyLine redDotLine = null;
+										ArrayList<MyLine> redDotdsLineArr = new ArrayList<>();
+			
+										for (int j = 1; j <= i; j++) {
+											g2d.setStroke(pen);
+											int r = radius - between * (j-1);
+											int d = r * 2;
+											int X = width / 2;
+											int Y = height / 2;
+											g2d.drawOval(X - r, Y - r, d, d);
+			//									g2d.setStroke(penForRec);
+			//									g2d.drawRect(X-r-thick/2, Y-r-thick/2, d+thick, d+thick);
+											circlesLineArr.add(new MyLine(X - r - thick / 2, Y - r - thick / 2, X + r + thick / 2,
+													Y + r + thick / 2));
 										}
-									}
-									g2d.dispose();
-		//						        File outputPNGfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
-									File outputPNGfile = new File(
-											dirPath + "\\" + "out_n" + i +"cC"+ circleColor+"bC"+ bgColor+ "th" + thick + "btw" + between +"rDC"+redColor +".jpg");
-									File outputCSVfile = new File(
-											dirPath + "\\" + "out_n" + i+"cC"+ circleColor+"bC"+ bgColor + "th" + thick + "btw" + between +"rDC"+redColor +".txt");
-									FileWriter myWriter = null;
-									try {
-										ImageIO.write(bufferedImage, "jpg", outputPNGfile);
-										myWriter = new FileWriter(outputCSVfile);
-										BufferedWriter myBWriter = new BufferedWriter(myWriter);
-										circlesLineArr.forEach(line -> { // записываем параметры кругов
-											try {
-												myBWriter.write("1 " + line.getX() + " " + line.getY() + " " + line.getX2()
-														+ " " + line.getY2());
-												myBWriter.newLine();
-											} catch (IOException e) {
-												e.printStackTrace();
+										if (rebDotChBox.isSelected()) {
+											BasicStroke pen2 = new BasicStroke(1);
+											g2d.setStroke(pen2);
+											int red, gr, b;
+									        if (redColor<= 127) { //для преобразования красного от темного до светлого, в середине - яркий красный 
+									            // Phase 1: 0 → 127: dark red (128,0,0) → bright red (255,0,0)
+									            // Red increases from 128 to 255 over 128 steps (0 to 127 inclusive)
+									            double ratio = redColor / 127.0;
+									            red = 128 + (int) ((255 - 128) * ratio); // 128 → 255
+									            gr = 0;
+									            b = 0;
+									        } else {
+									            // Phase 2: 128 → 255: bright red (255,0,0) → light red (255,220,220)
+									            // Green & blue rise from 0 → 220 over 128 steps (128 to 255 inclusive = 128 values)
+									            double ratio = (redColor - 128) / 127.0; // normalize to [0,1]
+									            red = 255;
+									            gr = (int) (230 * ratio); // 0 → 220
+									            b = (int) (230 * ratio); // 0 → 220
+									        }
+											g2d.setColor(new Color(red,gr,b));
+	//										g2d.setColor(Color.red);
+			//									int X = width / 2;
+											//цикл для генерации нужного кол-ва красных точек
+											for (int curDot = 0; curDot<redDotNumber; curDot++) {
+												int d = curDot*50; //для изменения промежутка генерации координат
+												int X = rand.nextInt(circlesLineArr.getFirst().getX()+d, circlesLineArr.getFirst().getX2()-d);
+				//									int Y = height / 2;
+												int Y = rand.nextInt(circlesLineArr.getFirst().getY()+d, circlesLineArr.getFirst().getY2()-d);
+												int redRadius = redSize /2; 
+												g2d.fillOval(X - redRadius, Y - redRadius, redSize, redSize);
+				//									g2d.setColor(Color.green);
+												// pen2 = new BasicStroke(1);
+				//									g2d.drawRect(X-3, Y-3, 6, 6);
+												redDotLine = new MyLine(X - redRadius, Y - redRadius, X + redRadius, Y + redRadius);
+												redDotdsLineArr.add(redDotLine);
 											}
-										});
-										// пишем параметры красной точки
-										redDotdsLineArr.forEach(line->{
-											try {
-												myBWriter.write("0 " + line.getX() + " " + line.getY() + " "
-														+ line.getX2() + " " + line.getY2());
-												myBWriter.newLine();
-											} catch (IOException e) {
-												e.printStackTrace();
-											}
-										});
-										myBWriter.close();// закрываем все соединения
-										myWriter.close();
-									} catch (IOException e1) {
-										e1.printStackTrace();
+										}
+										g2d.dispose();
+			//						        File outputPNGfile = new File(dirPath+"\\"+"out_n"+i+"th"+thick+"btw"+between+".png");
+										File outputPNGfile = new File(
+												dirPath + "\\" + "out_n" + i +"cC"+ circleColor+"bC"+ bgColor+ "th" + thick + "btw" + between +"rDC"+redColor +"rDR"+redSize+".jpg");
+										File outputCSVfile = new File(
+												dirPath + "\\" + "out_n" + i+"cC"+ circleColor+"bC"+ bgColor + "th" + thick + "btw" + between +"rDC"+redColor+"rDR"+redSize +".txt");
+										FileWriter myWriter = null;
+										try {
+											ImageIO.write(bufferedImage, "jpg", outputPNGfile);
+											myWriter = new FileWriter(outputCSVfile);
+											BufferedWriter myBWriter = new BufferedWriter(myWriter);
+											circlesLineArr.forEach(line -> { // записываем параметры кругов
+												try {
+													myBWriter.write("1 " + line.getX() + " " + line.getY() + " " + line.getX2()
+															+ " " + line.getY2());
+													myBWriter.newLine();
+												} catch (IOException e) {
+													e.printStackTrace();
+												}
+											});
+											// пишем параметры красной точки
+											redDotdsLineArr.forEach(line->{
+												try {
+													myBWriter.write("0 " + line.getX() + " " + line.getY() + " "
+															+ line.getX2() + " " + line.getY2());
+													myBWriter.newLine();
+												} catch (IOException e) {
+													e.printStackTrace();
+												}
+											});
+											myBWriter.close();// закрываем все соединения
+											myWriter.close();
+										} catch (IOException e1) {
+											e1.printStackTrace();
+										}
+			
+										progressI++;
+										progressLabel.setText("progressI = " + progressI);
+			//								System.out.println("progressI = "+progressI);
 									}
-		
-									progressI++;
-									progressLabel.setText("progressI = " + progressI);
-		//								System.out.println("progressI = "+progressI);
 								}
 							}
-						}
 				setEnabled(true);
 				File directory = new File(dirPath);
 				try {

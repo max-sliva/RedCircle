@@ -205,7 +205,7 @@ public class TargetMain {
 		menuBar.add(menuMain);
 		menuMain.add(genDataMenuItem);
 		GenerationOptions generationFrame = new GenerationOptions("Generation options");
-		generationFrame.setSize(800, 600);
+		generationFrame.setSize(1200, 800);
 		genDataMenuItem.addActionListener(e->{
 			System.out.println("data generation");
 			generationFrame.setLocationRelativeTo(targetWindow);
