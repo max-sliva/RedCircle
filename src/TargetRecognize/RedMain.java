@@ -19,10 +19,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JRadioButton;
 import javax.swing.Timer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -59,6 +63,15 @@ public class RedMain {
 		mainFrame = new JFrame("RedTargetTest");
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		MyLabel imageLabel = new MyLabel();
+		JRadioButton circleSearch = new JRadioButton("поиск кругов");
+		JRadioButton closedLineSearch = new JRadioButton("поиск замкнутых линий");
+		ButtonGroup group = new ButtonGroup();
+		group.add(circleSearch);
+		group.add(closedLineSearch);
+		circleSearch.setSelected(true);
+		Box upperBox = new Box(BoxLayout.X_AXIS);
+		upperBox.add(circleSearch);
+		upperBox.add(closedLineSearch);
 		JList<String> filesList = getListWithFiles();
 		fileName = filesList.getModel().getElementAt(0);   
 		try {
@@ -70,6 +83,7 @@ public class RedMain {
 		imageLabel.setIcon(imgIcon);
 		mainFrame.add(imageLabel, BorderLayout.CENTER);
 		mainFrame.add(filesList, BorderLayout.EAST);
+		mainFrame.add(upperBox, BorderLayout.NORTH);
 		mainFrame.setSize(800, 600);
 		mainFrame.setVisible(true);
 		resizeImage(imageLabel, myPicture, imgIcon);
@@ -85,7 +99,8 @@ public class RedMain {
 				} catch (IOException err) {
 					err.printStackTrace();
 				}
-				resizeImage(imageLabel, myPicture, imgIcon);
+				if (circleSearch.isSelected()) resizeImage(imageLabel, myPicture, imgIcon);
+				if (closedLineSearch.isSelected()) resizeImage2(imageLabel, myPicture, imgIcon);
 				mainFrame.invalidate();
 			}
 		});
@@ -111,7 +126,8 @@ public class RedMain {
 		});
 	}
 
-	private static void resizeImage(MyLabel imageLabel, BufferedImage myPicture, ImageIcon imgIcon) {
+	private static void resizeImage(MyLabel imageLabel, BufferedImage myPicture, ImageIcon imgIcon) { //обычное распознавание кругов
+		System.out.println("circleSearch");
 		float dHeight = imageLabel.getHeight() / (float) myPicture.getHeight();
 		int newWidth = (int) (myPicture.getWidth() * dHeight);
 		Image dimg = myPicture.getScaledInstance(newWidth, imageLabel.getHeight(), Image.SCALE_SMOOTH);
@@ -127,6 +143,27 @@ public class RedMain {
 			imageLabel.drawCircles(circlesList);
 			//circlesList.add(circle); //если нужен список со всеми кругами
 		}
+	}
+	
+	private static void resizeImage2(MyLabel imageLabel, BufferedImage myPicture, ImageIcon imgIcon) { //распознавание замкнутых линий
+		System.out.println("closedLineSearch");
+		float dHeight = imageLabel.getHeight() / (float) myPicture.getHeight();
+		int newWidth = (int) (myPicture.getWidth() * dHeight);
+		Image dimg = myPicture.getScaledInstance(newWidth, imageLabel.getHeight(), Image.SCALE_SMOOTH);
+		imgIcon.setImage(dimg);
+		СlosedLineSearch closedLineSearch = new СlosedLineSearch(myPicture);
+		
+//		RedSearch redSearch = new RedSearch(myPicture);
+//		Circle circle = redSearch.getCircle(); //находим внешний круг
+//		if (circle==null) {
+//			System.out.println("--!! No circle !!--");
+//		} else {
+//			imageLabel.drawCircle(circle.getX(), circle.getY(), circle.getRadius(), dHeight);
+//			System.out.println("--- inner circles search ---");
+//			ArrayList<Circle> circlesList = redSearch.getCircles(circle); //находим все внутренние круги
+//			imageLabel.drawCircles(circlesList);
+//			//circlesList.add(circle); //если нужен список со всеми кругами
+//		}
 	}
 
 	private static void consoleTest() {
