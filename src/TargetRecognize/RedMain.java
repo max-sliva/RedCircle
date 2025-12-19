@@ -1,6 +1,7 @@
 package TargetRecognize;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -65,6 +66,11 @@ public class RedMain {
 		MyLabel imageLabel = new MyLabel();
 		JRadioButton circleSearch = new JRadioButton("поиск кругов");
 		JRadioButton closedLineSearch = new JRadioButton("поиск замкнутых линий");
+		closedLineSearch.addActionListener(e-> {
+			System.out.println("2");
+			imageLabel.clear();	
+			imageLabel.repaint();
+		});
 		ButtonGroup group = new ButtonGroup();
 		group.add(circleSearch);
 		group.add(closedLineSearch);
@@ -106,7 +112,8 @@ public class RedMain {
 		});
 		timer = new Timer(50, e -> {
 			System.out.println("Resize action performed!");
-			resizeImage(imageLabel, myPicture, imgIcon);
+			if (circleSearch.isSelected()) resizeImage(imageLabel, myPicture, imgIcon);
+			if (closedLineSearch.isSelected()) resizeImage2(imageLabel, myPicture, imgIcon);
 		});
 		timer.setRepeats(false); // Only execute once after resizing stops
 
@@ -139,20 +146,36 @@ public class RedMain {
 		} else {
 			imageLabel.drawCircle(circle.getX(), circle.getY(), circle.getRadius(), dHeight);
 			System.out.println("--- inner circles search ---");
-			ArrayList<Circle> circlesList = redSearch.getCircles(circle); //находим все внутренние круги
-			imageLabel.drawCircles(circlesList);
+			ArrayList<Circle> circlesList = null;
+			try{
+				circlesList = redSearch.getCircles(circle); //находим все внутренние круги
+				imageLabel.drawCircles(circlesList);
+			} catch(java.lang.ArrayIndexOutOfBoundsException e) {
+				System.out.println("error in finding circles");
+			}
 			//circlesList.add(circle); //если нужен список со всеми кругами
 		}
 	}
 	
 	private static void resizeImage2(MyLabel imageLabel, BufferedImage myPicture, ImageIcon imgIcon) { //распознавание замкнутых линий
+		imageLabel.clear();
+		imageLabel.repaint();
+		BufferedImage tempImage = myPicture;
 		System.out.println("closedLineSearch");
-		float dHeight = imageLabel.getHeight() / (float) myPicture.getHeight();
-		int newWidth = (int) (myPicture.getWidth() * dHeight);
-		Image dimg = myPicture.getScaledInstance(newWidth, imageLabel.getHeight(), Image.SCALE_SMOOTH);
+		float dHeight = imageLabel.getHeight() / (float) tempImage.getHeight();
+		int newWidth = (int) (tempImage.getWidth() * dHeight);
+//		СlosedLineSearch closedLineSearch = new СlosedLineSearch(myPicture);
+		SimpleEdgeDetector edgeDetector = new SimpleEdgeDetector();
+		edgeDetector.detectEdges(tempImage, 100);
+		edgeDetector.drawEdges(tempImage, Color.yellow);
+		Image dimg = tempImage.getScaledInstance(newWidth, imageLabel.getHeight(), Image.SCALE_SMOOTH);
 		imgIcon.setImage(dimg);
-		СlosedLineSearch closedLineSearch = new СlosedLineSearch(myPicture);
+		imageLabel.repaint();
 		
+//		mainFrame.remove(imageLabel);
+//		imageLabel.setIcon(imgIcon);
+//		mainFrame.add(imageLabel, BorderLayout.CENTER);
+//		mainFrame.repaint();
 //		RedSearch redSearch = new RedSearch(myPicture);
 //		Circle circle = redSearch.getCircle(); //находим внешний круг
 //		if (circle==null) {

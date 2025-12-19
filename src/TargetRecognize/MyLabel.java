@@ -17,6 +17,14 @@ public class MyLabel extends JLabel{
 	boolean paintCircles = false;
 	ArrayList<Circle> circlesList = null;
 	float dHeight = 1;
+	boolean clear = false;
+	boolean paintEdges = false;
+	
+	public void clear() {	
+		clear = true;
+		paintCircle = false;
+		paintCircles = false;
+	}
 	
 	public void drawCircle(int x, int y, int r, float dHeight) {
 		this.dHeight = dHeight;
@@ -33,6 +41,11 @@ public class MyLabel extends JLabel{
 		this.circlesList = circlesList;
 		repaint();
 	}	
+	
+	public void drawEdges(ArrayList<EdgeCoords> edgeArray, Color edgesColor) {
+		
+		
+	}
 	
 	@Override
 	public void paint(Graphics g) {
@@ -61,6 +74,9 @@ public class MyLabel extends JLabel{
 				gr2D.drawOval(X-R, Y-R, d, d);
 			}
 		}
+		if (clear) {
+			gr2D.clearRect(0, 0, getSize().width, getSize().height);
+			clear = false;
+		}
 	}
-
 }
