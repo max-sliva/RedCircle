@@ -2,6 +2,7 @@ package TargetRecognize;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -160,35 +161,40 @@ public class RedMain {
 	private static void resizeImage2(MyLabel imageLabel, BufferedImage myPicture, ImageIcon imgIcon) { //распознавание замкнутых линий
 		imageLabel.clear();
 		imageLabel.repaint();
-		BufferedImage tempImage = myPicture;
+//		BufferedImage tempImage = myPicture;
 		System.out.println("closedLineSearch");
-		float dHeight = imageLabel.getHeight() / (float) tempImage.getHeight();
-		int newWidth = (int) (tempImage.getWidth() * dHeight);
-//		СlosedLineSearch closedLineSearch = new СlosedLineSearch(myPicture);
+		float dHeight = imageLabel.getHeight() / (float) myPicture.getHeight();
+		int newWidth = (int) (myPicture.getWidth() * dHeight);
 		SimpleEdgeDetector edgeDetector = new SimpleEdgeDetector();
-		edgeDetector.detectEdges(tempImage, 100);
-		edgeDetector.drawEdges(tempImage, Color.yellow);
-		Image dimg = tempImage.getScaledInstance(newWidth, imageLabel.getHeight(), Image.SCALE_SMOOTH);
+//		edgeDetector.detectEdges(tempImage, 100);
+//		edgeDetector.drawEdges(tempImage, Color.yellow);
+		Image dimg = myPicture.getScaledInstance(newWidth, imageLabel.getHeight(), Image.SCALE_SMOOTH);
 		imgIcon.setImage(dimg);
-		imageLabel.repaint();
-		
-//		mainFrame.remove(imageLabel);
-//		imageLabel.setIcon(imgIcon);
-//		mainFrame.add(imageLabel, BorderLayout.CENTER);
-//		mainFrame.repaint();
-//		RedSearch redSearch = new RedSearch(myPicture);
-//		Circle circle = redSearch.getCircle(); //находим внешний круг
-//		if (circle==null) {
-//			System.out.println("--!! No circle !!--");
-//		} else {
-//			imageLabel.drawCircle(circle.getX(), circle.getY(), circle.getRadius(), dHeight);
-//			System.out.println("--- inner circles search ---");
-//			ArrayList<Circle> circlesList = redSearch.getCircles(circle); //находим все внутренние круги
-//			imageLabel.drawCircles(circlesList);
-//			//circlesList.add(circle); //если нужен список со всеми кругами
-//		}
+		var tempImg = myPicture.getScaledInstance(newWidth, imageLabel.getHeight(), Image.SCALE_SMOOTH);
+		BufferedImage tempImage = toBufferedImage(tempImg);
+		ArrayList<EdgeCoords> edgesArray =  edgeDetector.getEdgeCoords(tempImage, 100);
+		imageLabel.drawEdges(edgesArray, Color.YELLOW);
+//		imageLabel.repaint();
 	}
 
+	public static BufferedImage toBufferedImage(Image img) {
+	    if (img instanceof BufferedImage) {
+	        return (BufferedImage) img;
+	    }
+
+	    BufferedImage bimage = new BufferedImage(
+	        img.getWidth(null),
+	        img.getHeight(null),
+	        BufferedImage.TYPE_INT_ARGB
+	    );
+
+	    Graphics2D bGr = bimage.createGraphics();
+	    bGr.drawImage(img, 0, 0, null);
+	    bGr.dispose();
+
+	    return bimage;
+	}
+	
 	private static void consoleTest() {
 		RedSearch redSearch = new RedSearch("img.png");
 		redSearch.findRedPoints();

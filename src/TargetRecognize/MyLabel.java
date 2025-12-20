@@ -16,9 +16,11 @@ public class MyLabel extends JLabel{
 	boolean paintCircle = false;
 	boolean paintCircles = false;
 	ArrayList<Circle> circlesList = null;
+	ArrayList<EdgeCoords> edgeArray = null;
 	float dHeight = 1;
 	boolean clear = false;
 	boolean paintEdges = false;
+	private Color edgesColor;
 	
 	public void clear() {	
 		clear = true;
@@ -43,8 +45,13 @@ public class MyLabel extends JLabel{
 	}	
 	
 	public void drawEdges(ArrayList<EdgeCoords> edgeArray, Color edgesColor) {
-		
-		
+		System.out.println("Drawing edges, array size = "+edgeArray.size());
+		this.edgeArray = edgeArray;
+		this.edgesColor = edgesColor;
+		paintEdges = true;
+		paintCircle = false;
+		paintCircles = false;
+		repaint();
 	}
 	
 	@Override
@@ -52,9 +59,9 @@ public class MyLabel extends JLabel{
 		super.paint(g);
 		Graphics2D gr2D = (Graphics2D)g;
 		BasicStroke pen;
+		gr2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		if (paintCircle) {
 			float[] dash = {20, 20};
-			gr2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			pen=new BasicStroke(10,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND, 10, dash, 1);
 			gr2D.setStroke(pen);
 			gr2D.setColor(Color.GREEN);
@@ -62,7 +69,7 @@ public class MyLabel extends JLabel{
 		}
 		if (paintCircles) {
 			float[] dash = {20, 20};
-			gr2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//			gr2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			pen=new BasicStroke(10,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND, 10, dash, 1);
 			gr2D.setStroke(pen);
 			gr2D.setColor(Color.YELLOW);
@@ -73,6 +80,15 @@ public class MyLabel extends JLabel{
 				int Y = (int) (circle.getY()*dHeight);
 				gr2D.drawOval(X-R, Y-R, d, d);
 			}
+		}
+		if (paintEdges) {
+			System.out.println("in paint");
+			pen=new BasicStroke(1,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND);
+			gr2D.setStroke(pen);
+			gr2D.setColor(edgesColor);
+			edgeArray.forEach(coords->{
+				gr2D.drawLine(coords.getX(), coords.getY(), coords.getX(), coords.getY());
+	    	});
 		}
 		if (clear) {
 			gr2D.clearRect(0, 0, getSize().width, getSize().height);
