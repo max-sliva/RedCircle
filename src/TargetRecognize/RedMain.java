@@ -67,11 +67,7 @@ public class RedMain {
 		MyLabel imageLabel = new MyLabel();
 		JRadioButton circleSearch = new JRadioButton("поиск кругов");
 		JRadioButton closedLineSearch = new JRadioButton("поиск замкнутых линий");
-		closedLineSearch.addActionListener(e-> {
-			System.out.println("2");
-			imageLabel.clear();	
-			imageLabel.repaint();
-		});
+		JRadioButton myContourSearch = new JRadioButton("собственный алгоритм");
 		ButtonGroup group = new ButtonGroup();
 		group.add(circleSearch);
 		group.add(closedLineSearch);
@@ -79,6 +75,7 @@ public class RedMain {
 		Box upperBox = new Box(BoxLayout.X_AXIS);
 		upperBox.add(circleSearch);
 		upperBox.add(closedLineSearch);
+		upperBox.add(myContourSearch);
 		JList<String> filesList = getListWithFiles();
 		fileName = filesList.getModel().getElementAt(0);   
 		try {
@@ -88,6 +85,12 @@ public class RedMain {
 		}
 		ImageIcon imgIcon = new ImageIcon(myPicture);
 		imageLabel.setIcon(imgIcon);
+		closedLineSearch.addActionListener(e-> {
+			System.out.println("2");
+			imageLabel.clear();	
+			imageLabel.repaint();
+			resizeImage2(imageLabel, myPicture, imgIcon);
+		});
 		mainFrame.add(imageLabel, BorderLayout.CENTER);
 		mainFrame.add(filesList, BorderLayout.EAST);
 		mainFrame.add(upperBox, BorderLayout.NORTH);
@@ -160,7 +163,7 @@ public class RedMain {
 	
 	private static void resizeImage2(MyLabel imageLabel, BufferedImage myPicture, ImageIcon imgIcon) { //распознавание замкнутых линий
 		imageLabel.clear();
-		imageLabel.repaint();
+//		imageLabel.repaint();
 //		BufferedImage tempImage = myPicture;
 		System.out.println("closedLineSearch");
 		float dHeight = imageLabel.getHeight() / (float) myPicture.getHeight();
@@ -177,6 +180,11 @@ public class RedMain {
 //		imageLabel.repaint();
 	}
 
+	private static void resizeImage3(MyLabel imageLabel, BufferedImage myPicture, ImageIcon imgIcon) { //распознавание замкнутых линий
+		
+	}
+
+	
 	public static BufferedImage toBufferedImage(Image img) {
 	    if (img instanceof BufferedImage) {
 	        return (BufferedImage) img;
