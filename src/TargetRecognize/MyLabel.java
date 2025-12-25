@@ -15,8 +15,10 @@ public class MyLabel extends JLabel{
 	int circleY;
 	boolean paintCircle = false;
 	boolean paintCircles = false;
+	boolean myContour = false;
 	ArrayList<Circle> circlesList = null;
 	ArrayList<EdgeCoords> edgeArray = null;
+	ArrayList<Contour> contoursArray = null;
 	float dHeight = 1;
 	boolean clear = false;
 	boolean paintEdges = false;
@@ -90,9 +92,31 @@ public class MyLabel extends JLabel{
 				gr2D.drawLine(coords.getX(), coords.getY(), coords.getX(), coords.getY());
 	    	});
 		}
+		if (myContour) {
+			System.out.println("in painting myContour");
+			pen=new BasicStroke(1,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND);
+			gr2D.setStroke(pen);
+			gr2D.setColor(edgesColor);
+			contoursArray.forEach(contour->{
+				contour.getEdgeCoordsList().forEach(point->{
+					gr2D.drawLine(point.getX(), point.getY(), point.getX(), point.getY());
+				});
+			});
+		}
 		if (clear) {
 			gr2D.clearRect(0, 0, getSize().width, getSize().height);
 			clear = false;
 		}
+	}
+
+	public void drawMyContour(ArrayList<Contour> edgesArray, Color edgesColor) {
+		contoursArray = edgesArray;
+		this.edgesColor = edgesColor;
+		paintEdges = false;
+		paintCircle = false;
+		paintCircles = false;
+		myContour = true;
+		repaint();		
+		
 	}
 }

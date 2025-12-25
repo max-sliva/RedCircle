@@ -1,7 +1,9 @@
 package TargetRecognize;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -96,8 +98,9 @@ class Contour{
 public class MyContourSearch {
 	private ArrayList<Contour> contoursList = null;
 	
-	public ArrayList<EdgeCoords> getContour(BufferedImage image, Color edgesColor, Color backColor) {
-		ArrayList<EdgeCoords> coordsList = new ArrayList<>();
+	public ArrayList<Contour> getContours(BufferedImage image, Color edgesColor, Color backColor) {
+//		ArrayList<EdgeCoords> coordsList = new ArrayList<>();
+		ArrayList<Contour> contoursList = new ArrayList<>();
 		Contour firstContour = new Contour();
 		EdgeCoords topEdge = getTopEdge(image, edgesColor, backColor);
 		firstContour.setTopEdge(topEdge);
@@ -108,13 +111,96 @@ public class MyContourSearch {
 		EdgeCoords rightEdge = getRightEdge(image, edgesColor, backColor);
 		firstContour.setLeftEdge(rightEdge);
 		
-		drawRedCross(image, firstContour, "target_redcross.png");
-		//TODO сделать поток для поиска контуров
-		int contourWidth = getContourWidthFromTopEdge(image, topEdge, edgesColor, backColor); 
-		System.out.println("contourWidth = "+contourWidth);
-		return coordsList;
+//		drawRedCross(image, firstContour, "target_redcross.png");
+//		String curPath = System.getProperty("user.dir");
+//		File directory = new File(curPath);
+//		try {
+//			Desktop.getDesktop().open(directory);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+		//режем картинку на 4 части
+		var img_1 = image.getSubimage(0, 0, topEdge.getX(), leftEdge.getY());
+		var img_3 = image.getSubimage(topEdge.getX(), 0,image.getWidth()-topEdge.getX(), leftEdge.getY());
+		var img_2 = image.getSubimage(0, leftEdge.getY()+1, topEdge.getX(), image.getHeight()-leftEdge.getY()-1);
+		var img_4 = image.getSubimage(topEdge.getX(), leftEdge.getY()+1, image.getWidth()-topEdge.getX(), image.getHeight()-leftEdge.getY()-1);
+		//создаем потоки для поиска контуров на этих частях
+		ThreadForContour contourThread1 = new ThreadForContour(img_1, 1, Color.BLACK);
+		ThreadForContour contourThread3 = new ThreadForContour(img_3, 3, Color.BLACK);
+		ThreadForContour contourThread2 = new ThreadForContour(img_2, 2, Color.BLACK);
+		ThreadForContour contourThread4 = new ThreadForContour(img_4, 4, Color.BLACK);
+		
+		System.out.println("----------");
+		contourThread1.start();
+		contourThread3.start();
+		contourThread2.start();
+		contourThread4.start();
+		while (contourThread1.isAlive() || contourThread3.isAlive() || contourThread2.isAlive() || contourThread4.isAlive()) {}
+		
+		//получаем контуры из потоков
+		ArrayList<ArrayList<EdgeCoords>> contours1 = contourThread1.getContoursList();
+		System.out.println("contours1 size in main = " + contours1.size());
+		ArrayList<ArrayList<EdgeCoords>> contours3 = contourThread3.getContoursList();
+		System.out.println("contours3 size in main = " + contours3.size());
+		ArrayList<ArrayList<EdgeCoords>> contours2 = contourThread2.getContoursList();
+		System.out.println("contours2 size in main = " + contours2.size());
+		ArrayList<ArrayList<EdgeCoords>> contours4 = contourThread4.getContoursList();
+		System.out.println("contours4 size in main = " + contours4.size());
+		contours1.forEach(contour->{ //идем по первому массиву с контурами из первой части картинки  
+			int i = contours1.indexOf(contour);
+			contours3.get(i).forEach(point->{ //добавляем к первому массиву точек контуров точки из третьего массива
+				contour.add(new EdgeCoords(point.getX()+topEdge.getX(), point.getY()));
+			});
+			contours2.get(i).forEach(point->{//добавляем к первому массиву точек контуров точки из второго массива
+				contour.add(new EdgeCoords(point.getX(), point.getY()+leftEdge.getY()));
+			});
+			contours4.get(i).forEach(point->{ //добавляем к первому массиву точек контуров точки из четвертого массива
+				contour.add(new EdgeCoords(point.getX()+topEdge.getX(), point.getY()+leftEdge.getY()));
+			});
+			var myContour = new Contour();
+			myContour.setEdgeCoordsList(contour);
+			contoursList.add(myContour);
+		});
+		
+//		drawContour(image, contours1, "target_contour.png");
+		drawContour2(image, contoursList, "target_contour.png");
+//		drawContour(image, contours3, "target_contour3.png");
+		//		int contourWidth = getContourWidthFromTopEdge(image, topEdge, edgesColor, backColor); 
+//		System.out.println("contourWidth = "+contourWidth);
+		
+		return contoursList;
 	}
 	
+	private void drawContour2(BufferedImage image, ArrayList<Contour> contoursList2, String fileName) {
+		contoursList2.forEach(contour->{
+			contour.getEdgeCoordsList().forEach(point->{
+				image.setRGB(point.getX(), point.getY(), Color.RED.getRGB());
+			});
+		});
+		try {
+			javax.imageio.ImageIO.write(image, "png", new java.io.File(fileName));
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("Trouble with writing image");
+		}
+		
+	}
+	
+	private void drawContour(BufferedImage image, ArrayList<ArrayList<EdgeCoords>> contours, String fileName) {
+		contours.forEach(contour->{
+			contour.forEach(point->{
+				image.setRGB(point.getX(), point.getY(), Color.RED.getRGB());
+			});
+		});
+		try {
+			javax.imageio.ImageIO.write(image, "png", new java.io.File(fileName));
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("Trouble with writing image");
+		}
+		
+	}
+
 	private void drawRedCross(BufferedImage image, Contour firstContour, String fileName) {
 		int topX = firstContour.getTopEdge().getX();
 		int leftY = firstContour.getLeftEdge().getY();
@@ -301,7 +387,7 @@ public class MyContourSearch {
 		System.out.println("Started MyContourSearch");
 		MyContourSearch mySearch = new MyContourSearch();
 		BufferedImage image = javax.imageio.ImageIO.read(new java.io.File("target.png"));
-		mySearch.getContour(image, Color.BLACK, Color.WHITE);
+		mySearch.getContours(image, Color.BLACK, Color.WHITE);
 	}
 	
 }

@@ -91,6 +91,13 @@ public class RedMain {
 			imageLabel.repaint();
 			resizeImage2(imageLabel, myPicture, imgIcon);
 		});
+		myContourSearch.addActionListener(e->{
+			System.out.println("3");
+			imageLabel.clear();	
+			imageLabel.repaint();
+			resizeImage3(imageLabel, myPicture, imgIcon);
+			
+		});
 		mainFrame.add(imageLabel, BorderLayout.CENTER);
 		mainFrame.add(filesList, BorderLayout.EAST);
 		mainFrame.add(upperBox, BorderLayout.NORTH);
@@ -110,7 +117,8 @@ public class RedMain {
 					err.printStackTrace();
 				}
 				if (circleSearch.isSelected()) resizeImage(imageLabel, myPicture, imgIcon);
-				if (closedLineSearch.isSelected()) resizeImage2(imageLabel, myPicture, imgIcon);
+				if (closedLineSearch.isSelected()) resizeImage2(imageLabel, myPicture, imgIcon); 
+				if (myContourSearch.isSelected()) resizeImage3(imageLabel, myPicture, imgIcon); 
 				mainFrame.invalidate();
 			}
 		});
@@ -118,6 +126,7 @@ public class RedMain {
 			System.out.println("Resize action performed!");
 			if (circleSearch.isSelected()) resizeImage(imageLabel, myPicture, imgIcon);
 			if (closedLineSearch.isSelected()) resizeImage2(imageLabel, myPicture, imgIcon);
+			if (myContourSearch.isSelected()) resizeImage3(imageLabel, myPicture, imgIcon); 
 		});
 		timer.setRepeats(false); // Only execute once after resizing stops
 
@@ -181,6 +190,19 @@ public class RedMain {
 	}
 
 	private static void resizeImage3(MyLabel imageLabel, BufferedImage myPicture, ImageIcon imgIcon) { //распознавание замкнутых линий
+		imageLabel.clear();
+		System.out.println("mySearch");
+		float dHeight = imageLabel.getHeight() / (float) myPicture.getHeight();
+		int newWidth = (int) (myPicture.getWidth() * dHeight);
+		MyContourSearch edgeDetector = new MyContourSearch();
+//		edgeDetector.detectEdges(tempImage, 100);
+//		edgeDetector.drawEdges(tempImage, Color.yellow);
+		Image dimg = myPicture.getScaledInstance(newWidth, imageLabel.getHeight(), Image.SCALE_SMOOTH);
+		imgIcon.setImage(dimg);
+		var tempImg = myPicture.getScaledInstance(newWidth, imageLabel.getHeight(), Image.SCALE_SMOOTH);
+		BufferedImage tempImage = toBufferedImage(tempImg);
+		ArrayList<Contour> edgesArray =  edgeDetector.getContours(tempImage, Color.BLACK, Color.white);
+		imageLabel.drawMyContour(edgesArray, Color.YELLOW);
 		
 	}
 
