@@ -16,6 +16,8 @@ public class MyLabel extends JLabel{
 	boolean paintCircle = false;
 	boolean paintCircles = false;
 	boolean myContour = false;
+	private MyPoint redPoint;
+	private boolean drawDot = false;
 	ArrayList<Circle> circlesList = null;
 	ArrayList<EdgeCoords> edgeArray = null;
 	ArrayList<Contour> contoursArray = null;
@@ -53,6 +55,12 @@ public class MyLabel extends JLabel{
 		paintEdges = true;
 		paintCircle = false;
 		paintCircles = false;
+		repaint();
+	}
+	
+	public void drawRedDot(int x, int y) {
+		drawDot = true;
+		redPoint = new MyPoint(x, y);
 		repaint();
 	}
 	
@@ -102,6 +110,12 @@ public class MyLabel extends JLabel{
 					gr2D.drawLine(point.getX(), point.getY(), point.getX(), point.getY());
 				});
 			});
+		}
+		if (drawDot) {
+			pen = new BasicStroke(2);
+			gr2D.setStroke(pen);
+			gr2D.setColor(Color.red);
+			gr2D.fillOval(redPoint.getX()-3, redPoint.getY()-3, 6, 6);
 		}
 		if (clear) {
 			gr2D.clearRect(0, 0, getSize().width, getSize().height);

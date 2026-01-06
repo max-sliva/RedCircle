@@ -30,6 +30,8 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -41,6 +43,12 @@ public class RedMain {
 
 	public static void main(String[] args) {
 //		consoleTest();
+		try {
+			UIManager.setLookAndFeel("com.formdev.flatlaf.FlatLightLaf");
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
 		guiTest();
 	}
 
@@ -52,7 +60,7 @@ public class RedMain {
 	      .collect(Collectors.toList());
 	}
 	
-	private static JList<String> getListWithFiles() {
+	private static JList<String> getJListWithFiles() {
 		DefaultListModel<String> listModel = new DefaultListModel<String>();
 		listModel.addAll(listFilesUsingJavaIO(System.getProperty("user.dir")));
 		System.out.println("listModel = "+listModel);
@@ -61,7 +69,6 @@ public class RedMain {
 	}
 	
 	private static void guiTest() {
-
 		mainFrame = new JFrame("RedTargetTest");
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		MyLabel imageLabel = new MyLabel();
@@ -71,12 +78,13 @@ public class RedMain {
 		ButtonGroup group = new ButtonGroup();
 		group.add(circleSearch);
 		group.add(closedLineSearch);
+		group.add(myContourSearch);
 		circleSearch.setSelected(true);
 		Box upperBox = new Box(BoxLayout.X_AXIS);
 		upperBox.add(circleSearch);
 		upperBox.add(closedLineSearch);
 		upperBox.add(myContourSearch);
-		JList<String> filesList = getListWithFiles();
+		JList<String> filesList = getJListWithFiles();
 		fileName = filesList.getModel().getElementAt(0);   
 		try {
 			myPicture = ImageIO.read(new File(fileName));
@@ -142,6 +150,13 @@ public class RedMain {
 			public void componentResized(ComponentEvent e) {
 				timer.restart();
 //				resizeImage(imageLabel, myPicture, imgIcon);
+			}
+		});
+		imageLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				super.mouseReleased(e);
+				imageLabel.drawRedDot(e.getX(), e.getY());
 			}
 		});
 	}
