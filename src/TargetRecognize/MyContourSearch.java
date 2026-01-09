@@ -163,7 +163,7 @@ public class MyContourSearch {
 		});
 		
 //		drawContour(image, contours1, "target_contour.png");
-		drawContour2(image, contoursList, "target_contour.png");
+//		drawContour2(image, contoursList, "target_contour.png");
 //		drawContour(image, contours3, "target_contour3.png");
 		//		int contourWidth = getContourWidthFromTopEdge(image, topEdge, edgesColor, backColor); 
 //		System.out.println("contourWidth = "+contourWidth);

@@ -40,7 +40,7 @@ public class RedMain {
 	static BufferedImage myPicture = null;
 	 private static Timer timer;
 	 static String fileName = "";
-
+	 static ArrayList<Contour> edgesArray;
 	public static void main(String[] args) {
 //		consoleTest();
 		try {
@@ -157,9 +157,18 @@ public class RedMain {
 			public void mouseReleased(MouseEvent e) {
 				super.mouseReleased(e);
 				imageLabel.drawRedDot(e.getX(), e.getY());
+				System.out.println("edgesArray size = " + edgesArray.size()); 
+				int nearestContour = getNearestContour(edgesArray, e.getX(), e.getY());
+				System.out.println("between ");
 			}
 		});
 	}
+
+	protected static int getNearestContour(ArrayList<Contour> edgesArray2, int x, int y) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 
 	private static void resizeImage(MyLabel imageLabel, BufferedImage myPicture, ImageIcon imgIcon) { //обычное распознавание кругов
 		System.out.println("circleSearch");
@@ -216,7 +225,7 @@ public class RedMain {
 		imgIcon.setImage(dimg);
 		var tempImg = myPicture.getScaledInstance(newWidth, imageLabel.getHeight(), Image.SCALE_SMOOTH);
 		BufferedImage tempImage = toBufferedImage(tempImg);
-		ArrayList<Contour> edgesArray =  edgeDetector.getContours(tempImage, Color.BLACK, Color.white);
+		edgesArray =  edgeDetector.getContours(tempImage, Color.BLACK, Color.white);
 		imageLabel.drawMyContour(edgesArray, Color.YELLOW);
 		
 	}
