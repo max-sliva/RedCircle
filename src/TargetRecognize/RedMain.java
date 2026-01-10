@@ -165,7 +165,10 @@ public class RedMain {
 	}
 
 	protected static int getNearestContour(ArrayList<Contour> edgesArray2, int x, int y) {
-		// TODO Auto-generated method stub
+		for (Contour contour: edgesArray2) {
+			List<EdgeCoords> coordsWithGivenX = contour.getEdgeCoordsList().stream().filter(coord-> coord.getX()==x).toList();
+//			coordsWithGivenX.
+		}
 		return 0;
 	}
 
