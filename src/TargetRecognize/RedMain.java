@@ -41,6 +41,12 @@ public class RedMain {
 	 private static Timer timer;
 	 static String fileName = "";
 	 static ArrayList<Contour> edgesArray;
+	 static int minDiff = 0;
+	 private static int upperY = 100000;
+	 private static int lowerY = 100000;
+	 private static int upperContour = -1;
+	 private static int	lowerContour = -1;
+	 
 	public static void main(String[] args) {
 //		consoleTest();
 		try {
@@ -159,16 +165,43 @@ public class RedMain {
 				imageLabel.drawRedDot(e.getX(), e.getY());
 				System.out.println("edgesArray size = " + edgesArray.size()); 
 				int nearestContour = getNearestContour(edgesArray, e.getX(), e.getY());
-				System.out.println("between ");
+//				System.out.println("between ");
 			}
 		});
 	}
 
 	protected static int getNearestContour(ArrayList<Contour> edgesArray2, int x, int y) {
+		upperY = 100000;
+		lowerY = 100000;
+		upperContour = -1;
+		lowerContour = -1;
+		int i = 0;
+//		int nearestContour = -1; 
+		
 		for (Contour contour: edgesArray2) {
+//			System.out.println(i+": ");
 			List<EdgeCoords> coordsWithGivenX = contour.getEdgeCoordsList().stream().filter(coord-> coord.getX()==x).toList();
-//			coordsWithGivenX.
+			for (EdgeCoords dot: coordsWithGivenX) {
+//			coordsWithGivenX.forEach(dot->{
+//				System.out.print("x="+dot.getX()+", y="+dot.getY()+"; ");
+				if (dot.getY() < y) {
+					int diff = Math.abs(y - dot.getY());
+		            if (diff < upperY) {
+		                upperY = diff;
+		                upperContour = i;
+		            }
+				} else {
+					int diff = Math.abs(y - dot.getY());
+		            if (diff < lowerY) {
+		            	lowerY = diff;
+		            	lowerContour = i;
+		            }
+				}
+			}
+//			System.out.println();
+			i++;
 		}
+		System.out.println("lower contour = " + lowerContour +", upper Contour = "+ upperContour);
 		return 0;
 	}
 
